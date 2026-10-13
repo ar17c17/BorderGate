@@ -1,0 +1,81 @@
+pasaporte,pais_emisor,fecha_denuncia,motivo_baja,estado
+STOLEN-00129,FRA,2026-01-15,Robo con violencia,REVOCADO
+STOLEN-44910,FRA,2026-02-04,Sustracción en aeropuerto CDG,REVOCADO
+STOLEN-88219,ESP,2026-02-18,Extravío denunciado en comisaría,REVOCADO
+STOLEN-33901,DEU,2025-11-20,Hurto en hotel,REVOCADO
+STOLEN-77124,ITA,2026-03-01,Pérdida en transporte público,REVOCADO
+STOLEN-66100,USA,2025-12-10,Robo de equipaje,REVOCADO
+STOLEN-99128,GBR,2026-01-29,Sustracción en vehículo,REVOCADO
+STOLEN-11234,ESP,2026-03-12,Extravío en vuelo internacional,REVOCADO
+STOLEN-55192,NLD,2026-02-27,Robo con fuerza en domicilio,REVOCADO
+STOLEN-22819,BEL,2026-01-08,Documento sustraído lote consular,REVOCADO
+STOLEN-66718,COL,2025-10-14,Asalto callejero,REVOCADO
+STOLEN-44012,MAR,2026-02-22,Extravío documentado,REVOCADO
+STOLEN-65333,NLD,2026-01-13,Extravío involuntario,REVOCADO
+STOLEN-88104,BRA,2026-03-09,Sustracción en estación,REVOCADO
+STOLEN-11504,BEL,2026-03-04,Sustracción en estación,REVOCADO
+STOLEN-44973,CHE,2026-03-11,Hurto al descuido,REVOCADO
+STOLEN-48469,COL,2026-01-15,Hurto al descuido,REVOCADO
+STOLEN-44522,MAR,2026-01-17,Hurto al descuido,REVOCADO
+STOLEN-91959,USA,2026-03-17,Sustracción en estación,REVOCADO
+STOLEN-36071,DEU,2026-02-25,Pérdida en trayecto,REVOCADO
+STOLEN-80697,CHE,2026-03-01,Sustracción en estación,REVOCADO
+STOLEN-52487,BRA,2026-01-04,Robo de pertenencias personales,REVOCADO
+STOLEN-50306,ITA,2026-01-08,Sustracción en estación,REVOCADO
+STOLEN-20322,FRA,2026-03-16,Hurto al descuido,REVOCADO
+STOLEN-79822,CHE,2026-01-05,Extravío involuntario,REVOCADO
+STOLEN-82063,DEU,2026-02-17,Sustracción en estación,REVOCADO
+STOLEN-65461,ITA,2026-03-25,Pérdida en trayecto,REVOCADO
+STOLEN-50857,COL,2026-03-21,Robo de pertenencias personales,REVOCADO
+STOLEN-67422,PRT,2026-03-15,Hurto al descuido,REVOCADO
+STOLEN-42493,ITA,2026-01-11,Hurto al descuido,REVOCADO
+STOLEN-87110,MAR,2026-01-19,Pérdida en trayecto,REVOCADO
+STOLEN-10942,FRA,2026-03-21,Hurto al descuido,REVOCADO
+STOLEN-40007,FRA,2026-01-28,Robo de pertenencias personales,REVOCADO
+STOLEN-19287,MAR,2026-01-09,Extravío involuntario,REVOCADO
+STOLEN-38080,MAR,2026-01-24,Sustracción en estación,REVOCADO
+STOLEN-85525,BRA,2026-01-26,Extravío involuntario,REVOCADO
+STOLEN-63354,ITA,2026-01-04,Extravío involuntario,REVOCADO
+STOLEN-56438,COL,2026-02-15,Hurto al descuido,REVOCADO
+STOLEN-98259,BEL,2026-03-04,Hurto al descuido,REVOCADO
+STOLEN-62772,SWE,2026-02-26,Hurto al descuido,REVOCADO
+STOLEN-42591,ITA,2026-01-18,Extravío involuntario,REVOCADO
+STOLEN-28373,COL,2026-01-09,Extravío involuntario,REVOCADO
+STOLEN-42742,CAN,2026-01-15,Sustracción en estación,REVOCADO
+STOLEN-22833,ESP,2026-03-18,Hurto al descuido,REVOCADO
+STOLEN-22224,PRT,2026-01-06,Extravío involuntario,REVOCADO
+STOLEN-73653,BRA,2026-01-28,Extravío involuntario,REVOCADO
+STOLEN-17685,DEU,2026-02-01,Extravío involuntario,REVOCADO
+STOLEN-44760,PRT,2026-02-10,Extravío involuntario,REVOCADO
+STOLEN-82845,BEL,2026-03-16,Pérdida en trayecto,REVOCADO
+STOLEN-34890,USA,2026-01-02,Sustracción en estación,REVOCADO
+STOLEN-81066,ESP,2026-03-11,Hurto al descuido,REVOCADO
+STOLEN-16572,NLD,2026-02-17,Sustracción en estación,REVOCADO
+STOLEN-30635,ESP,2026-03-03,Pérdida en trayecto,REVOCADO
+STOLEN-18981,NLD,2026-01-22,Pérdida en trayecto,REVOCADO
+STOLEN-62923,FRA,2026-03-08,Sustracción en estación,REVOCADO
+STOLEN-87924,ESP,2026-03-03,Extravío involuntario,REVOCADO
+STOLEN-96163,NLD,2026-03-17,Robo de pertenencias personales,REVOCADO
+STOLEN-44179,ITA,2026-03-23,Robo de pertenencias personales,REVOCADO
+STOLEN-41285,USA,2026-02-05,Robo de pertenencias personales,REVOCADO
+STOLEN-69929,GBR,2026-01-01,Extravío involuntario,REVOCADO
+STOLEN-91416,NLD,2026-01-03,Sustracción en estación,REVOCADO
+STOLEN-37938,MAR,2026-02-05,Robo de pertenencias personales,REVOCADO
+STOLEN-19016,PRT,2026-01-12,Robo de pertenencias personales,REVOCADO
+STOLEN-30676,BRA,2026-03-23,Robo de pertenencias personales,REVOCADO
+STOLEN-90173,CHE,2026-03-17,Hurto al descuido,REVOCADO
+STOLEN-97538,CAN,2026-03-10,Hurto al descuido,REVOCADO
+STOLEN-27601,USA,2026-01-04,Sustracción en estación,REVOCADO
+STOLEN-30374,USA,2026-02-20,Pérdida en trayecto,REVOCADO
+STOLEN-54942,ITA,2026-03-21,Robo de pertenencias personales,REVOCADO
+STOLEN-76244,BRA,2026-02-28,Hurto al descuido,REVOCADO
+STOLEN-22097,BEL,2026-02-27,Robo de pertenencias personales,REVOCADO
+STOLEN-15778,ESP,2026-02-25,Pérdida en trayecto,REVOCADO
+STOLEN-93507,USA,2026-01-24,Extravío involuntario,REVOCADO
+STOLEN-82309,SWE,2026-02-18,Hurto al descuido,REVOCADO
+STOLEN-24663,FRA,2026-03-05,Sustracción en estación,REVOCADO
+STOLEN-14722,CAN,2026-02-19,Sustracción en estación,REVOCADO
+STOLEN-29410,COL,2026-01-02,Robo de pertenencias personales,REVOCADO
+STOLEN-57795,PRT,2026-01-12,Pérdida en trayecto,REVOCADO
+STOLEN-99399,ITA,2026-03-04,Robo de pertenencias personales,REVOCADO
+STOLEN-83385,PRT,2026-02-20,Pérdida en trayecto,REVOCADO

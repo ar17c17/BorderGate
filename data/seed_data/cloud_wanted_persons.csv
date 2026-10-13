@@ -1,0 +1,51 @@
+pasaporte,nombre_completo,nacionalidad,motivo_busqueda,autoridad_emisora,nivel_peligrosidad,orden_detencion
+RED-908122,Viktor Kozlov,RUS,Crimen Organizado Transnacional,Interpol Roja,CRITICO,ORD-2025-9912
+RED-443109,Salim Al-Mansoor,SYR,Financiación Terrorismo y Fraude,Interpol Roja,CRITICO,ORD-2024-3310
+RED-112984,Elena Rostova,RUS,Tráfico Ilícito y Blanqueo,Europol,ALTO,ORD-2025-7741
+WAR-552019,Arthur Pendelton,GBR,Orden Detención Europea (EAW),Policía Metropolitana,MEDIO,EAW-2026-1049
+WAR-771822,Carlos Mendez Valero,COL,Evasión Fiscal Agravada y Cohecho,Audiencia Nacional,MEDIO,AN-ES-2026-081
+WAR-334110,Dmitri Volkov,UKR,Falsedad Documental Sistemática,SIS II (Schengen),ALTO,SIS-2026-4402
+RED-883011,Marcus Aurelius Vance,USA,Ciberdelincuencia e Invasión Sistemas Críticos,FBI / Interpol,ALTO,FBI-2025-901
+WAR-662914,Amira Benali,MAR,Trata de Seres Humanos,Europol / España,CRITICO,EAW-2026-881
+RED-770487,Tariq Mansoor,IRQ,Tráfico Ilícito de Armamento,Interpol Roja,CRITICO,ORD-2026-1053
+WAR-216739,Goran Petrovic,SRB,Robo Organizado a Gran Escala,Europol,ALTO,ORD-2026-1170
+RED-126225,Mateo Valenzuela,MEX,Tráfico Internacional de Estupefacientes,Interpol Roja,CRITICO,ORD-2026-1287
+WAR-877572,Igor Smirnov,RUS,Ciberfraude Bancario,SIS II (Schengen),ALTO,ORD-2026-1404
+INT-388389,Jean-Paul Leclerc,FRA,Malversación de Fondos Públicos,Europol,MEDIO,ORD-2026-1521
+INT-356787,Kwadwo Mensah,GHA,Falsificación de Títulos y Visados,Interpol Azul,MEDIO,ORD-2026-1638
+WAR-334053,Lucia Fernandes,BRA,Blanqueo de Capitales en Red,Interpol Roja,ALTO,ORD-2026-1755
+INT-246316,Zhen Kang,CHN,Contrabando Tecnológico Protegido,Interpol Azul,MEDIO,ORD-2026-1872
+RED-872246,Slobodan Milic,BIH,Crimen Violento y Fuga,Europol,CRITICO,ORD-2026-1989
+INT-207473,Ahmed El-Sayed,EGY,Tráfico de Antigüedades Expoliado,Interpol Roja,MEDIO,ORD-2026-2106
+INT-809570,Patrick O'Connor,IRL,Conspiración para Fraude Financiero,Policía Metropolitana,MEDIO,ORD-2026-2223
+RED-876646,Valentin Draganov,BGR,Trata y Explotación Laboral,Europol,CRITICO,ORD-2026-2340
+RED-671858,Diego Armando Caicedo,COL,Narcotráfico y Tenencia Ilícita,Interpol Roja,CRITICO,ORD-2026-2457
+WAR-191161,Mikhail Voronin,UKR,Sabotaje de Infraestructuras Digitales,FBI / Interpol,ALTO,ORD-2026-2574
+INT-719176,Fatoumata Camara,SEN,Red de Documentación Falsa,SIS II (Schengen),MEDIO,ORD-2026-2691
+INT-542417,Andrei Popescu,ROU,Skimming y Clonación de Tarjetas,Europol,MEDIO,ORD-2026-2808
+RED-133326,Omar Al-Bayati,IRQ,Pertenencia a Banda Armada,Interpol Roja,CRITICO,ORD-2026-2925
+INT-131244,Sebastian Scholz,DEU,Estafa Piramidal Transfronteriza,BKA / Europol,MEDIO,ORD-2026-3042
+WAR-198246,Nguyen Van Nam,VNM,Caza Furtiva y Contrabando de Especies,Interpol Roja,ALTO,ORD-2026-3159
+INT-329258,Kenji Takahashi,JPN,Fraude Corporativo Bursátil,Interpol Azul,BAJO,ORD-2026-3276
+RED-731262,Fugitivo 29 USA,USA,Tráfico de Sustancias,SIS II (Schengen),CRITICO,ORD-2026-2407
+RED-781453,Fugitivo 30 USA,USA,Estafa Informática,Interpol Roja,CRITICO,ORD-2026-2490
+RED-391704,Fugitivo 31 ALB,ALB,Tráfico de Sustancias,Interpol Roja,CRITICO,ORD-2026-2573
+WAR-391369,Fugitivo 32 NGA,NGA,Falsedad de Identidad,Interpol Roja,ALTO,ORD-2026-2656
+INT-197251,Fugitivo 33 ROU,ROU,Estafa Informática,Interpol Roja,MEDIO,ORD-2026-2739
+WAR-733052,Fugitivo 34 ROU,ROU,Apropiación Indebida Agravada,Interpol Roja,ALTO,ORD-2026-2822
+RED-230889,Fugitivo 35 ALB,ALB,Estafa Informática,Interpol Roja,CRITICO,ORD-2026-2905
+WAR-969693,Fugitivo 36 VEN,VEN,Apropiación Indebida Agravada,SIS II (Schengen),ALTO,ORD-2026-2988
+RED-172933,Fugitivo 37 USA,USA,Tráfico de Sustancias,SIS II (Schengen),CRITICO,ORD-2026-3071
+WAR-183667,Fugitivo 38 USA,USA,Falsedad de Identidad,Interpol Roja,ALTO,ORD-2026-3154
+WAR-575435,Fugitivo 39 NGA,NGA,Apropiación Indebida Agravada,Interpol Roja,ALTO,ORD-2026-3237
+WAR-319684,Fugitivo 40 ROU,ROU,Apropiación Indebida Agravada,SIS II (Schengen),ALTO,ORD-2026-3320
+RED-765822,Fugitivo 41 COL,COL,Falsedad de Identidad,SIS II (Schengen),CRITICO,ORD-2026-3403
+INT-584714,Fugitivo 42 USA,USA,Estafa Informática,Europol,MEDIO,ORD-2026-3486
+INT-817870,Fugitivo 43 VEN,VEN,Apropiación Indebida Agravada,Interpol Roja,MEDIO,ORD-2026-3569
+INT-944151,Fugitivo 44 USA,USA,Apropiación Indebida Agravada,Europol,MEDIO,ORD-2026-3652
+INT-321231,Fugitivo 45 UKR,UKR,Apropiación Indebida Agravada,Interpol Roja,MEDIO,ORD-2026-3735
+WAR-774079,Fugitivo 46 ALB,ALB,Estafa Informática,Interpol Roja,ALTO,ORD-2026-3818
+INT-358607,Fugitivo 47 UKR,UKR,Apropiación Indebida Agravada,SIS II (Schengen),MEDIO,ORD-2026-3901
+RED-518801,Fugitivo 48 NGA,NGA,Apropiación Indebida Agravada,Interpol Roja,CRITICO,ORD-2026-3984
+RED-617488,Fugitivo 49 MAR,MAR,Tráfico de Sustancias,Interpol Roja,CRITICO,ORD-2026-4067
+INT-757924,Fugitivo 50 COL,COL,Falsedad de Identidad,SIS II (Schengen),MEDIO,ORD-2026-4150

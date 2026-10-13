@@ -1,0 +1,31 @@
+timestamp,alerta_id,prioridad,agente_destino,cabina,codigo_evento,mensaje,accion_requerida
+2026-10-13 14:02:02,ALT-2026-001,ALTA,POL-8491,GATE-12,STOLEN_PASSPORT_HIT,Documento en base de datos SLTD como sustraído. Ocurrido en GATE-12.,Retener viajero e incautar pasaporte para análisis Box 1
+2026-10-13 14:07:34,ALT-2026-002,CRITICA,POL-8491,GATE-08,INTERPOL_RED_NOTICE,ALERTA ROJA: Sujeto reclamado por Interpol detectado. Ocurrido en GATE-08.,Despliegue operativo policial inmediato en cabina
+2026-10-13 14:09:18,ALT-2026-003,CRITICA,POL-7854,GATE-03,EAW_ARREST_HIT,Orden Europea de Detención y Entrega detectada. Ocurrido en GATE-03.,Asegurar esclusa y solicitar apoyo de guardia
+2026-10-13 14:14:23,ALT-2026-004,ALTA,POL-7854,GATE-07,SUSPECT_FACIAL_FRAUD,Suplantación de identidad potencial: disparidad biométrica grave. Ocurrido en GATE-07.,Intervención de especialista documental y toma dactilar
+2026-10-13 14:19:05,ALT-2026-005,MEDIA,POL-8491,GATE-06,SYSTEM_CHIP_CORRUPT,Imposibilidad de autenticar firma criptográfica de pasaporte. Ocurrido en GATE-06.,Traslado a verificación física manual
+2026-10-13 14:22:11,ALT-2026-006,MEDIA,POL-9914,GATE-03,VISA_MISSING_ENTRY,Nacionalidad no Schengen sin visado ni autorización electrónica. Ocurrido en GATE-03.,Derivación al centro de resolución y denegación de entrada
+2026-10-13 14:27:53,ALT-2026-007,CRITICA,POL-7854,GATE-05,INTERPOL_RED_NOTICE,ALERTA ROJA: Sujeto reclamado por Interpol detectado. Ocurrido en GATE-05.,Despliegue operativo policial inmediato en cabina
+2026-10-13 14:29:43,ALT-2026-008,MEDIA,POL-9914,GATE-07,VISA_MISSING_ENTRY,Nacionalidad no Schengen sin visado ni autorización electrónica. Ocurrido en GATE-07.,Derivación al centro de resolución y denegación de entrada
+2026-10-13 14:34:15,ALT-2026-009,ALTA,POL-4052,GATE-03,STOLEN_PASSPORT_HIT,Documento en base de datos SLTD como sustraído. Ocurrido en GATE-03.,Retener viajero e incautar pasaporte para análisis Box 1
+2026-10-13 14:39:12,ALT-2026-010,CRITICA,POL-7854,GATE-11,INTERPOL_RED_NOTICE,ALERTA ROJA: Sujeto reclamado por Interpol detectado. Ocurrido en GATE-11.,Despliegue operativo policial inmediato en cabina
+2026-10-13 14:41:39,ALT-2026-011,CRITICA,POL-8491,GATE-04,EAW_ARREST_HIT,Orden Europea de Detención y Entrega detectada. Ocurrido en GATE-04.,Asegurar esclusa y solicitar apoyo de guardia
+2026-10-13 14:43:06,ALT-2026-012,ALTA,POL-8491,GATE-10,SUSPECT_FACIAL_FRAUD,Suplantación de identidad potencial: disparidad biométrica grave. Ocurrido en GATE-10.,Intervención de especialista documental y toma dactilar
+2026-10-13 14:45:15,ALT-2026-013,ALTA,POL-9914,GATE-08,SUSPECT_FACIAL_FRAUD,Suplantación de identidad potencial: disparidad biométrica grave. Ocurrido en GATE-08.,Intervención de especialista documental y toma dactilar
+2026-10-13 14:47:34,ALT-2026-014,CRITICA,POL-4052,GATE-03,INTERPOL_RED_NOTICE,ALERTA ROJA: Sujeto reclamado por Interpol detectado. Ocurrido en GATE-03.,Despliegue operativo policial inmediato en cabina
+2026-10-13 14:50:14,ALT-2026-015,MEDIA,POL-4052,GATE-10,VISA_MISSING_ENTRY,Nacionalidad no Schengen sin visado ni autorización electrónica. Ocurrido en GATE-10.,Derivación al centro de resolución y denegación de entrada
+2026-10-13 14:54:15,ALT-2026-016,CRITICA,POL-9914,GATE-11,EAW_ARREST_HIT,Orden Europea de Detención y Entrega detectada. Ocurrido en GATE-11.,Asegurar esclusa y solicitar apoyo de guardia
+2026-10-13 14:58:26,ALT-2026-017,ALTA,POL-9914,GATE-01,STOLEN_PASSPORT_HIT,Documento en base de datos SLTD como sustraído. Ocurrido en GATE-01.,Retener viajero e incautar pasaporte para análisis Box 1
+2026-10-13 15:02:40,ALT-2026-018,MEDIA,POL-8491,GATE-08,VISA_MISSING_ENTRY,Nacionalidad no Schengen sin visado ni autorización electrónica. Ocurrido en GATE-08.,Derivación al centro de resolución y denegación de entrada
+2026-10-13 15:07:22,ALT-2026-019,MEDIA,POL-7854,GATE-06,VISA_MISSING_ENTRY,Nacionalidad no Schengen sin visado ni autorización electrónica. Ocurrido en GATE-06.,Derivación al centro de resolución y denegación de entrada
+2026-10-13 15:12:26,ALT-2026-020,ALTA,POL-9914,GATE-07,STOLEN_PASSPORT_HIT,Documento en base de datos SLTD como sustraído. Ocurrido en GATE-07.,Retener viajero e incautar pasaporte para análisis Box 1
+2026-10-13 15:15:48,ALT-2026-021,CRITICA,POL-4052,GATE-04,EAW_ARREST_HIT,Orden Europea de Detención y Entrega detectada. Ocurrido en GATE-04.,Asegurar esclusa y solicitar apoyo de guardia
+2026-10-13 15:20:54,ALT-2026-022,ALTA,POL-7854,GATE-01,SUSPECT_FACIAL_FRAUD,Suplantación de identidad potencial: disparidad biométrica grave. Ocurrido en GATE-01.,Intervención de especialista documental y toma dactilar
+2026-10-13 15:23:26,ALT-2026-023,ALTA,POL-4052,GATE-04,SUSPECT_FACIAL_FRAUD,Suplantación de identidad potencial: disparidad biométrica grave. Ocurrido en GATE-04.,Intervención de especialista documental y toma dactilar
+2026-10-13 15:26:13,ALT-2026-024,MEDIA,POL-7854,GATE-02,SYSTEM_CHIP_CORRUPT,Imposibilidad de autenticar firma criptográfica de pasaporte. Ocurrido en GATE-02.,Traslado a verificación física manual
+2026-10-13 15:30:54,ALT-2026-025,CRITICA,POL-9914,GATE-09,INTERPOL_RED_NOTICE,ALERTA ROJA: Sujeto reclamado por Interpol detectado. Ocurrido en GATE-09.,Despliegue operativo policial inmediato en cabina
+2026-10-13 15:34:03,ALT-2026-026,ALTA,POL-8491,GATE-11,SUSPECT_FACIAL_FRAUD,Suplantación de identidad potencial: disparidad biométrica grave. Ocurrido en GATE-11.,Intervención de especialista documental y toma dactilar
+2026-10-13 15:38:55,ALT-2026-027,CRITICA,POL-9914,GATE-10,EAW_ARREST_HIT,Orden Europea de Detención y Entrega detectada. Ocurrido en GATE-10.,Asegurar esclusa y solicitar apoyo de guardia
+2026-10-13 15:40:30,ALT-2026-028,ALTA,POL-8491,GATE-05,STOLEN_PASSPORT_HIT,Documento en base de datos SLTD como sustraído. Ocurrido en GATE-05.,Retener viajero e incautar pasaporte para análisis Box 1
+2026-10-13 15:43:13,ALT-2026-029,MEDIA,POL-7854,GATE-02,SYSTEM_CHIP_CORRUPT,Imposibilidad de autenticar firma criptográfica de pasaporte. Ocurrido en GATE-02.,Traslado a verificación física manual
+2026-10-13 15:46:58,ALT-2026-030,MEDIA,POL-9914,GATE-10,SYSTEM_CHIP_CORRUPT,Imposibilidad de autenticar firma criptográfica de pasaporte. Ocurrido en GATE-10.,Traslado a verificación física manual

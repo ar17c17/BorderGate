@@ -1,0 +1,61 @@
+identificador_pasajero,score_prioridad,motivo_derivacion,cabina_origen,estado_inspeccion
+RED-908122:Viktor Kozlov,99.8,Alerta Interpol Roja: Crimen Organizado Transnacional,GATE-11,DERIVADO_A_COMISARIA
+INT-356787:Kwadwo Mensah,99.7,Alerta Interpol Azul: Falsificación de Títulos y Visados,GATE-11,EN_CUSTODIA_ESPERA
+INT-388389:Jean-Paul Leclerc,98.5,Alerta Europol: Malversación de Fondos Públicos,GATE-02,EN_CUSTODIA_ESPERA
+RED-443109:Salim Al-Mansoor,97.6,Alerta Interpol Roja: Financiación Terrorismo y Fraude,GATE-09,BLOQUEADO_EN_ESCLUSA
+WAR-552019:Arthur Pendelton,97.6,Alerta Policía Metropolitana: Orden Detención Europea (EAW),GATE-12,BLOQUEADO_EN_ESCLUSA
+WAR-216739:Goran Petrovic,96.8,Alerta Europol: Robo Organizado a Gran Escala,GATE-02,EN_CUSTODIA_ESPERA
+WAR-877572:Igor Smirnov,95.8,Alerta SIS II (Schengen): Ciberfraude Bancario,GATE-07,DERIVADO_A_COMISARIA
+RED-770487:Tariq Mansoor,95.7,Alerta Interpol Roja: Tráfico Ilícito de Armamento,GATE-09,EN_CUSTODIA_ESPERA
+WAR-334053:Lucia Fernandes,95.6,Alerta Interpol Roja: Blanqueo de Capitales en Red,GATE-11,BLOQUEADO_EN_ESCLUSA
+WAR-662914:Amira Benali,94.9,Alerta Europol / España: Trata de Seres Humanos,GATE-10,DERIVADO_A_COMISARIA
+RED-126225:Mateo Valenzuela,94.4,Alerta Interpol Roja: Tráfico Internacional de Estupefacientes,GATE-12,BLOQUEADO_EN_ESCLUSA
+RED-112984:Elena Rostova,94.3,Alerta Europol: Tráfico Ilícito y Blanqueo,GATE-05,EN_CUSTODIA_ESPERA
+RED-883011:Marcus Aurelius Vance,93.9,Alerta FBI / Interpol: Ciberdelincuencia e Invasión Sistemas Críticos,GATE-08,EN_CUSTODIA_ESPERA
+WAR-334110:Dmitri Volkov,93.8,Alerta SIS II (Schengen): Falsedad Documental Sistemática,GATE-04,EN_CUSTODIA_ESPERA
+WAR-771822:Carlos Mendez Valero,93.4,Alerta Audiencia Nacional: Evasión Fiscal Agravada y Cohecho,GATE-06,BLOQUEADO_EN_ESCLUSA
+STOLEN-77124:Diego Alonso,90.5,Pasaporte Revocado SLTD: Pérdida en transporte público,GATE-02,PENDIENTE_BOX_2
+STOLEN-44012:Sofia Alvarez,90.4,Pasaporte Revocado SLTD: Extravío documentado,GATE-09,PENDIENTE_BOX_2
+STOLEN-00129:Diego Wang,90.3,Pasaporte Revocado SLTD: Robo con violencia,GATE-09,EN_ESPERA_ESPECIALISTA
+STOLEN-55192:Elijah Gonzalez,90.0,Pasaporte Revocado SLTD: Robo con fuerza en domicilio,GATE-10,PENDIENTE_BOX_1
+STOLEN-88219:Liam Hernandez,89.9,Pasaporte Revocado SLTD: Extravío denunciado en comisaría,GATE-09,PENDIENTE_BOX_1
+STOLEN-44910:Ava Mendez,89.3,Pasaporte Revocado SLTD: Sustracción en aeropuerto CDG,GATE-03,PENDIENTE_BOX_2
+STOLEN-66718:Gabriel Vance,89.3,Pasaporte Revocado SLTD: Asalto callejero,GATE-07,EN_ESPERA_ESPECIALISTA
+STOLEN-11504:Daniel Perez,86.6,Pasaporte Revocado SLTD: Sustracción en estación,GATE-04,PENDIENTE_BOX_2
+STOLEN-66100:Mikhail Navarro,84.6,Pasaporte Revocado SLTD: Robo de equipaje,GATE-11,PENDIENTE_BOX_2
+STOLEN-65333:Zhen Moreno,84.3,Pasaporte Revocado SLTD: Extravío involuntario,GATE-11,PENDIENTE_BOX_2
+STOLEN-33901:Zhen Rossi,83.5,Pasaporte Revocado SLTD: Hurto en hotel,GATE-12,PENDIENTE_BOX_1
+STOLEN-11234:Ava Dominguez,83.5,Pasaporte Revocado SLTD: Extravío en vuelo internacional,GATE-11,EN_ESPERA_ESPECIALISTA
+STOLEN-99128:Charlotte Gutierrez,82.9,Pasaporte Revocado SLTD: Sustracción en vehículo,GATE-11,PENDIENTE_BOX_1
+STOLEN-88104:Zhen Jimenez,82.7,Pasaporte Revocado SLTD: Sustracción en estación,GATE-01,PENDIENTE_BOX_1
+STOLEN-22819:Sofia Dubois,82.4,Pasaporte Revocado SLTD: Documento sustraído lote consular,GATE-11,EN_ESPERA_ESPECIALISTA
+GRC-428930:Sofia Martin,74.0,Fallo severo coincidencia biométrica facial (<0.50),GATE-07,EN_ANALISIS_TECNICO
+BRA-270395:Charlotte Fernandez,67.1,Ausencia de visado consular en país de alto requerimiento,GATE-10,PENDIENTE_DOCUMENTACION
+AUS-483713:Martina Sanchez,64.4,Ausencia de visado consular en país de alto requerimiento,GATE-01,PENDIENTE_DOCUMENTACION
+BRA-622469:Mikhail Rossi,63.5,Fallo lectura chip NFC criptográfico,GATE-08,VERIFICACION_MANUAL_CHIP
+PER-360330:Charlotte Perez,63.2,Fallo lectura chip NFC criptográfico,GATE-03,VERIFICACION_MANUAL_CHIP
+NOR-401602:Arthur Silva,63.1,Fallo lectura chip NFC criptográfico,GATE-02,VERIFICACION_MANUAL_CHIP
+KOR-809489:Fatima Torres,59.6,Fallo lectura chip NFC criptográfico,GATE-07,VERIFICACION_MANUAL_CHIP
+VEN-739711:Diego Pendelton,59.1,Fallo lectura chip NFC criptográfico,GATE-04,VERIFICACION_MANUAL_CHIP
+COL-908634:Marco Blanco,57.5,Fallo lectura chip NFC criptográfico,GATE-04,VERIFICACION_MANUAL_CHIP
+NGA-324381:Gabriel Moreno,56.7,Fallo lectura chip NFC criptográfico,GATE-09,VERIFICACION_MANUAL_CHIP
+COL-194423:Khadija Smith,51.1,Superación presunta regla estancia 90/180 días,GATE-09,VERIFICACION_SELLOS
+CHN-108574:Arthur Gutierrez,49.4,Superación presunta regla estancia 90/180 días,GATE-07,VERIFICACION_SELLOS
+MEX-483366:Paula Navarro,47.8,Superación presunta regla estancia 90/180 días,GATE-04,VERIFICACION_SELLOS
+EGY-281594:Hugo Fernandez,42.8,Superación presunta regla estancia 90/180 días,GATE-09,VERIFICACION_SELLOS
+NOR-869864:Santiago Fernandez,41.8,Inconsistencia en billete de retorno y fondos declarados,GATE-06,ENTREVISTA_FILTRO
+COL-486251:Youssef Smith,40.6,Superación presunta regla estancia 90/180 días,GATE-02,VERIFICACION_SELLOS
+COL-597643:Sofia Vazquez,39.5,Superación presunta regla estancia 90/180 días,GATE-11,VERIFICACION_SELLOS
+AUT-359961:Elena Martin,37.4,Superación presunta regla estancia 90/180 días,GATE-01,VERIFICACION_SELLOS
+JPN-224582:Charlotte Ramos,37.2,Superación presunta regla estancia 90/180 días,GATE-02,VERIFICACION_SELLOS
+CHE-688933:Martina Romero,36.8,Superación presunta regla estancia 90/180 días,GATE-04,VERIFICACION_SELLOS
+GBR-470037:Lucia Dominguez,35.8,Superación presunta regla estancia 90/180 días,GATE-05,VERIFICACION_SELLOS
+CAN-603787:Camila Dominguez,27.9,Inconsistencia en billete de retorno y fondos declarados,GATE-11,ENTREVISTA_FILTRO
+GRC-402620:Martina Navarro,26.3,Inconsistencia en billete de retorno y fondos declarados,GATE-09,ENTREVISTA_FILTRO
+TUR-142210:Alba Romero,25.8,Inconsistencia en billete de retorno y fondos declarados,GATE-03,ENTREVISTA_FILTRO
+COL-631958:Ava Gonzalez,22.9,Inspección aleatoria preventiva vuelo internacional de riesgo,GATE-09,FILTRO_ALEATORIO
+USA-912617:Leo Romero,20.8,Inspección aleatoria preventiva vuelo internacional de riesgo,GATE-08,FILTRO_ALEATORIO
+PER-133104:Irina Rostova,20.4,Inspección aleatoria preventiva vuelo internacional de riesgo,GATE-12,FILTRO_ALEATORIO
+ITA-317413:Chen Alonso,20.3,Inspección aleatoria preventiva vuelo internacional de riesgo,GATE-11,FILTRO_ALEATORIO
+IND-465746:Santiago Moreno,20.3,Inspección aleatoria preventiva vuelo internacional de riesgo,GATE-12,FILTRO_ALEATORIO
+ARG-579187:Youssef Alonso,16.4,Inspección aleatoria preventiva vuelo internacional de riesgo,GATE-09,FILTRO_ALEATORIO

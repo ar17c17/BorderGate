@@ -1,0 +1,36 @@
+codigo_pais,nombre_pais,espacio_schengen,requiere_visado,max_dias_estancia,nivel_riesgo_pais,requiere_etias
+ESP,España,True,False,-1,BAJO,False
+FRA,Francia,True,False,-1,BAJO,False
+DEU,Alemania,True,False,-1,BAJO,False
+ITA,Italia,True,False,-1,BAJO,False
+PRT,Portugal,True,False,-1,BAJO,False
+NLD,Países Bajos,True,False,-1,BAJO,False
+BEL,Bélgica,True,False,-1,BAJO,False
+AUT,Austria,True,False,-1,BAJO,False
+CHE,Suiza,True,False,-1,BAJO,False
+NOR,Noruega,True,False,-1,BAJO,False
+SWE,Suecia,True,False,-1,BAJO,False
+POL,Polonia,True,False,-1,BAJO,False
+GRC,Grecia,True,False,-1,BAJO,False
+USA,Estados Unidos,False,False,90,BAJO,True
+CAN,Canadá,False,False,90,BAJO,True
+GBR,Reino Unido,False,False,90,BAJO,True
+AUS,Australia,False,False,90,BAJO,True
+JPN,Japón,False,False,90,BAJO,True
+KOR,Corea del Sur,False,False,90,BAJO,True
+COL,Colombia,False,False,90,MEDIO,True
+BRA,Brasil,False,False,90,MEDIO,True
+ARG,Argentina,False,False,90,MEDIO,True
+CHL,Chile,False,False,90,BAJO,True
+MEX,México,False,False,90,MEDIO,True
+PER,Perú,False,False,90,MEDIO,True
+MAR,Marruecos,False,True,30,ALTO,False
+DZA,Argelia,False,True,30,ALTO,False
+SEN,Senegal,False,True,30,ALTO,False
+NGA,Nigeria,False,True,30,ALTO,False
+RUS,Rusia,False,True,30,ALTO,False
+CHN,China,False,True,30,MEDIO,False
+IND,India,False,True,30,MEDIO,False
+TUR,Turquía,False,True,30,MEDIO,False
+EGY,Egipto,False,True,30,ALTO,False
+VEN,Venezuela,False,True,90,ALTO,False
