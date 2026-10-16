@@ -1,0 +1,19 @@
+services:
+  redis-local:
+    image: redis:7
+    container_name: bordergate-redis-local
+    restart: unless-stopped
+    ports:
+      - "${REDIS_LOCAL_PORT:-6379}:6379"
+    volumes:
+      - redis_local_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - redisnet
+
+networks:
+  redisnet:
+    driver: bridge
+
+volumes:
+  redis_local_data:
