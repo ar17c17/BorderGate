@@ -1,36 +1,36 @@
-codigo_pais,nombre_pais,espacio_schengen,requiere_visado,max_dias_estancia,nivel_riesgo_pais,requiere_etias
-ESP,España,True,False,-1,BAJO,False
-FRA,Francia,True,False,-1,BAJO,False
-DEU,Alemania,True,False,-1,BAJO,False
-ITA,Italia,True,False,-1,BAJO,False
-PRT,Portugal,True,False,-1,BAJO,False
-NLD,Países Bajos,True,False,-1,BAJO,False
-BEL,Bélgica,True,False,-1,BAJO,False
-AUT,Austria,True,False,-1,BAJO,False
-CHE,Suiza,True,False,-1,BAJO,False
-NOR,Noruega,True,False,-1,BAJO,False
-SWE,Suecia,True,False,-1,BAJO,False
-POL,Polonia,True,False,-1,BAJO,False
-GRC,Grecia,True,False,-1,BAJO,False
-USA,Estados Unidos,False,False,90,BAJO,True
-CAN,Canadá,False,False,90,BAJO,True
-GBR,Reino Unido,False,False,90,BAJO,True
-AUS,Australia,False,False,90,BAJO,True
-JPN,Japón,False,False,90,BAJO,True
-KOR,Corea del Sur,False,False,90,BAJO,True
-COL,Colombia,False,False,90,MEDIO,True
-BRA,Brasil,False,False,90,MEDIO,True
-ARG,Argentina,False,False,90,MEDIO,True
-CHL,Chile,False,False,90,BAJO,True
-MEX,México,False,False,90,MEDIO,True
-PER,Perú,False,False,90,MEDIO,True
-MAR,Marruecos,False,True,30,ALTO,False
-DZA,Argelia,False,True,30,ALTO,False
-SEN,Senegal,False,True,30,ALTO,False
-NGA,Nigeria,False,True,30,ALTO,False
-RUS,Rusia,False,True,30,ALTO,False
-CHN,China,False,True,30,MEDIO,False
-IND,India,False,True,30,MEDIO,False
-TUR,Turquía,False,True,30,MEDIO,False
-EGY,Egipto,False,True,30,ALTO,False
-VEN,Venezuela,False,True,90,ALTO,False
+country_code,country_name,schengen_area,visa_required,max_stay_days,country_risk_level,etias_required
+ESP,Spain,True,False,-1,Low,False
+FRA,France,True,False,-1,Low,False
+DEU,Germany,True,False,-1,Low,False
+ITA,Italy,True,False,-1,Low,False
+PRT,Portugal,True,False,-1,Low,False
+NLD,Netherlands,True,False,-1,Low,False
+BEL,Belgium,True,False,-1,Low,False
+AUT,Austria,True,False,-1,Low,False
+CHE,Switzerland,True,False,-1,Low,False
+NOR,Norway,True,False,-1,Low,False
+SWE,Sweden,True,False,-1,Low,False
+POL,Poland,True,False,-1,Low,False
+GRC,Greece,True,False,-1,Low,False
+USA,United States,False,False,90,Low,True
+CAN,Canada,False,False,90,Low,True
+GBR,United Kingdom,False,False,90,Low,True
+AUS,Australia,False,False,90,Low,True
+JPN,Japan,False,False,90,Low,True
+KOR,South Korea,False,False,90,Low,True
+COL,Colombia,False,False,90,Medium,True
+BRA,Brazil,False,False,90,Medium,True
+ARG,Argentina,False,False,90,Medium,True
+CHL,Chile,False,False,90,Low,True
+MEX,Mexico,False,False,90,Medium,True
+PER,Peru,False,False,90,Medium,True
+MAR,Morocco,False,True,30,High,False
+DZA,Algeria,False,True,30,High,False
+SEN,Senegal,False,True,30,High,False
+NGA,Nigeria,False,True,30,High,False
+RUS,Russia,False,True,30,High,False
+CHN,China,False,True,30,Medium,False
+IND,India,False,True,30,Medium,False
+TUR,Turkey,False,True,30,Medium,False
+EGY,Egypt,False,True,30,High,False
+VEN,Venezuela,False,True,90,High,False
