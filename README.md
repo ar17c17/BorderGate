@@ -79,7 +79,7 @@ REDIS_CLOUD_PASSWORD=your_password
 Launch the local Redis container using Docker Compose:
 
 ```bash
-docker compose -f docker/docker-compose.yml up -d
+docker compose -f docker/docker_compose.yml up -d
 ```
 
 To verify that the container is up and responding:
@@ -96,5 +96,5 @@ docker exec -it bordergate-redis-local redis-cli PING
 Run the connectivity test script to verify communication with both Local and Cloud Redis instances:
 
 ```bash
-uv run python src/test_connect.py
+uv run python -m src.test_connect
 ```
