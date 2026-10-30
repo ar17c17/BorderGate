@@ -1,51 +1,51 @@
-timestamp,esclusa,accion,estado_puerta,bloqueo_seguridad,motivo
-2026-10-13 14:00:59,GATE-05,CLOSE_FRONT_DOOR,CERRADA,False,Pasajero en esclusa estéril iniciando lectura facial
-2026-10-13 14:03:06,GATE-03,OPEN_EXIT_DOOR,ABIERTA,False,Acceso concedido a territorio Schengen tras validación
-2026-10-13 14:06:15,GATE-04,CLOSE_FRONT_DOOR,CERRADA,False,Pasajero en esclusa estéril iniciando lectura facial
-2026-10-13 14:07:14,GATE-09,DIVERT_SECONDARY,ABIERTA_LATERAL,False,Derivación obligatoria hacia pasillo secundario de inspección
-2026-10-13 14:10:26,GATE-02,OPEN_EXIT_DOOR,ABIERTA,False,Acceso concedido a territorio Schengen tras validación
-2026-10-13 14:12:43,GATE-02,EMERGENCY_LOCK,CERRADA,True,INTERPOL_ALERT_TRIGGER: Bloqueo inmediato de seguridad en GATE-02
-2026-10-13 14:13:59,GATE-09,CLOSE_FRONT_DOOR,CERRADA,False,Pasajero en esclusa estéril iniciando lectura facial
-2026-10-13 14:14:30,GATE-08,EMERGENCY_LOCK,CERRADA,True,INTERPOL_ALERT_TRIGGER: Bloqueo inmediato de seguridad en GATE-08
-2026-10-13 14:17:20,GATE-05,CLOSE_FRONT_DOOR,CERRADA,False,Pasajero en esclusa estéril iniciando lectura facial
-2026-10-13 14:19:41,GATE-02,DIVERT_SECONDARY,ABIERTA_LATERAL,False,Derivación obligatoria hacia pasillo secundario de inspección
-2026-10-13 14:22:46,GATE-12,OPEN_EXIT_DOOR,ABIERTA,False,Acceso concedido a territorio Schengen tras validación
-2026-10-13 14:23:26,GATE-03,OPEN_EXIT_DOOR,ABIERTA,False,Acceso concedido a territorio Schengen tras validación
-2026-10-13 14:24:53,GATE-01,OPEN_EXIT_DOOR,ABIERTA,False,Acceso concedido a territorio Schengen tras validación
-2026-10-13 14:26:59,GATE-03,OPEN_EXIT_DOOR,ABIERTA,False,Acceso concedido a territorio Schengen tras validación
-2026-10-13 14:29:56,GATE-05,EMERGENCY_LOCK,CERRADA,True,INTERPOL_ALERT_TRIGGER: Bloqueo inmediato de seguridad en GATE-05
-2026-10-13 14:30:38,GATE-10,OPEN_EXIT_DOOR,ABIERTA,False,Acceso concedido a territorio Schengen tras validación
-2026-10-13 14:31:18,GATE-06,OPEN_EXIT_DOOR,ABIERTA,False,Acceso concedido a territorio Schengen tras validación
-2026-10-13 14:33:33,GATE-09,OPEN_EXIT_DOOR,ABIERTA,False,Acceso concedido a territorio Schengen tras validación
-2026-10-13 14:35:54,GATE-03,CLOSE_FRONT_DOOR,CERRADA,False,Pasajero en esclusa estéril iniciando lectura facial
-2026-10-13 14:38:51,GATE-04,DIVERT_SECONDARY,ABIERTA_LATERAL,False,Derivación obligatoria hacia pasillo secundario de inspección
-2026-10-13 14:39:29,GATE-12,DIVERT_SECONDARY,ABIERTA_LATERAL,False,Derivación obligatoria hacia pasillo secundario de inspección
-2026-10-13 14:42:00,GATE-03,DIVERT_SECONDARY,ABIERTA_LATERAL,False,Derivación obligatoria hacia pasillo secundario de inspección
-2026-10-13 14:45:36,GATE-05,OPEN_EXIT_DOOR,ABIERTA,False,Acceso concedido a territorio Schengen tras validación
-2026-10-13 14:48:39,GATE-03,OPEN_EXIT_DOOR,ABIERTA,False,Acceso concedido a territorio Schengen tras validación
-2026-10-13 14:51:32,GATE-07,EMERGENCY_LOCK,CERRADA,True,INTERPOL_ALERT_TRIGGER: Bloqueo inmediato de seguridad en GATE-07
-2026-10-13 14:53:06,GATE-11,OPEN_EXIT_DOOR,ABIERTA,False,Acceso concedido a territorio Schengen tras validación
-2026-10-13 14:54:20,GATE-08,EMERGENCY_LOCK,CERRADA,True,INTERPOL_ALERT_TRIGGER: Bloqueo inmediato de seguridad en GATE-08
-2026-10-13 14:55:15,GATE-07,OPEN_EXIT_DOOR,ABIERTA,False,Acceso concedido a territorio Schengen tras validación
-2026-10-13 14:57:19,GATE-06,OPEN_EXIT_DOOR,ABIERTA,False,Acceso concedido a territorio Schengen tras validación
-2026-10-13 15:00:16,GATE-01,DIVERT_SECONDARY,ABIERTA_LATERAL,False,Derivación obligatoria hacia pasillo secundario de inspección
-2026-10-13 15:03:03,GATE-04,EMERGENCY_LOCK,CERRADA,True,INTERPOL_ALERT_TRIGGER: Bloqueo inmediato de seguridad en GATE-04
-2026-10-13 15:06:10,GATE-05,CLOSE_FRONT_DOOR,CERRADA,False,Pasajero en esclusa estéril iniciando lectura facial
-2026-10-13 15:08:49,GATE-12,CLOSE_FRONT_DOOR,CERRADA,False,Pasajero en esclusa estéril iniciando lectura facial
-2026-10-13 15:10:58,GATE-11,DIVERT_SECONDARY,ABIERTA_LATERAL,False,Derivación obligatoria hacia pasillo secundario de inspección
-2026-10-13 15:12:14,GATE-04,CLOSE_FRONT_DOOR,CERRADA,False,Pasajero en esclusa estéril iniciando lectura facial
-2026-10-13 15:13:47,GATE-08,DIVERT_SECONDARY,ABIERTA_LATERAL,False,Derivación obligatoria hacia pasillo secundario de inspección
-2026-10-13 15:16:35,GATE-12,OPEN_EXIT_DOOR,ABIERTA,False,Acceso concedido a territorio Schengen tras validación
-2026-10-13 15:18:52,GATE-11,OPEN_EXIT_DOOR,ABIERTA,False,Acceso concedido a territorio Schengen tras validación
-2026-10-13 15:19:48,GATE-11,OPEN_EXIT_DOOR,ABIERTA,False,Acceso concedido a territorio Schengen tras validación
-2026-10-13 15:22:33,GATE-02,CLOSE_FRONT_DOOR,CERRADA,False,Pasajero en esclusa estéril iniciando lectura facial
-2026-10-13 15:24:04,GATE-06,EMERGENCY_LOCK,CERRADA,True,INTERPOL_ALERT_TRIGGER: Bloqueo inmediato de seguridad en GATE-06
-2026-10-13 15:27:57,GATE-09,DIVERT_SECONDARY,ABIERTA_LATERAL,False,Derivación obligatoria hacia pasillo secundario de inspección
-2026-10-13 15:30:09,GATE-09,DIVERT_SECONDARY,ABIERTA_LATERAL,False,Derivación obligatoria hacia pasillo secundario de inspección
-2026-10-13 15:31:28,GATE-09,CLOSE_FRONT_DOOR,CERRADA,False,Pasajero en esclusa estéril iniciando lectura facial
-2026-10-13 15:32:37,GATE-12,EMERGENCY_LOCK,CERRADA,True,INTERPOL_ALERT_TRIGGER: Bloqueo inmediato de seguridad en GATE-12
-2026-10-13 15:34:28,GATE-09,CLOSE_FRONT_DOOR,CERRADA,False,Pasajero en esclusa estéril iniciando lectura facial
-2026-10-13 15:35:26,GATE-09,CLOSE_FRONT_DOOR,CERRADA,False,Pasajero en esclusa estéril iniciando lectura facial
-2026-10-13 15:37:29,GATE-09,OPEN_EXIT_DOOR,ABIERTA,False,Acceso concedido a territorio Schengen tras validación
-2026-10-13 15:40:01,GATE-12,DIVERT_SECONDARY,ABIERTA_LATERAL,False,Derivación obligatoria hacia pasillo secundario de inspección
-2026-10-13 15:42:47,GATE-01,CLOSE_FRONT_DOOR,CERRADA,False,Pasajero en esclusa estéril iniciando lectura facial
+timestamp,booth_id,action,door_status,security_lockout,reason
+2026-10-13 14:00:59,BOX-005,CLOSE_FRONT_DOOR,CLOSED,False,Passenger in sterile airlock initiating facial scan
+2026-10-13 14:03:06,BOX-003,OPEN_EXIT_DOOR,OPEN,False,Access granted to Schengen territory after validation
+2026-10-13 14:06:15,BOX-004,CLOSE_FRONT_DOOR,CLOSED,False,Passenger in sterile airlock initiating facial scan
+2026-10-13 14:07:14,BOX-009,DIVERT_SECONDARY,SIDE_OPEN,False,Mandatory diversion to secondary inspection corridor
+2026-10-13 14:10:26,BOX-002,OPEN_EXIT_DOOR,OPEN,False,Access granted to Schengen territory after validation
+2026-10-13 14:12:43,BOX-002,EMERGENCY_LOCK,CLOSED,True,INTERPOL_ALERT_TRIGGER: Immediate security lockout at BOX-002
+2026-10-13 14:13:59,BOX-009,CLOSE_FRONT_DOOR,CLOSED,False,Passenger in sterile airlock initiating facial scan
+2026-10-13 14:14:30,BOX-008,EMERGENCY_LOCK,CLOSED,True,INTERPOL_ALERT_TRIGGER: Immediate security lockout at BOX-008
+2026-10-13 14:17:20,BOX-005,CLOSE_FRONT_DOOR,CLOSED,False,Passenger in sterile airlock initiating facial scan
+2026-10-13 14:19:41,BOX-002,DIVERT_SECONDARY,SIDE_OPEN,False,Mandatory diversion to secondary inspection corridor
+2026-10-13 14:22:46,BOX-012,OPEN_EXIT_DOOR,OPEN,False,Access granted to Schengen territory after validation
+2026-10-13 14:23:26,BOX-003,OPEN_EXIT_DOOR,OPEN,False,Access granted to Schengen territory after validation
+2026-10-13 14:24:53,BOX-001,OPEN_EXIT_DOOR,OPEN,False,Access granted to Schengen territory after validation
+2026-10-13 14:26:59,BOX-003,OPEN_EXIT_DOOR,OPEN,False,Access granted to Schengen territory after validation
+2026-10-13 14:29:56,BOX-005,EMERGENCY_LOCK,CLOSED,True,INTERPOL_ALERT_TRIGGER: Immediate security lockout at BOX-005
+2026-10-13 14:30:38,BOX-010,OPEN_EXIT_DOOR,OPEN,False,Access granted to Schengen territory after validation
+2026-10-13 14:31:18,BOX-006,OPEN_EXIT_DOOR,OPEN,False,Access granted to Schengen territory after validation
+2026-10-13 14:33:33,BOX-009,OPEN_EXIT_DOOR,OPEN,False,Access granted to Schengen territory after validation
+2026-10-13 14:35:54,BOX-003,CLOSE_FRONT_DOOR,CLOSED,False,Passenger in sterile airlock initiating facial scan
+2026-10-13 14:38:51,BOX-004,DIVERT_SECONDARY,SIDE_OPEN,False,Mandatory diversion to secondary inspection corridor
+2026-10-13 14:39:29,BOX-012,DIVERT_SECONDARY,SIDE_OPEN,False,Mandatory diversion to secondary inspection corridor
+2026-10-13 14:42:00,BOX-003,DIVERT_SECONDARY,SIDE_OPEN,False,Mandatory diversion to secondary inspection corridor
+2026-10-13 14:45:36,BOX-005,OPEN_EXIT_DOOR,OPEN,False,Access granted to Schengen territory after validation
+2026-10-13 14:48:39,BOX-003,OPEN_EXIT_DOOR,OPEN,False,Access granted to Schengen territory after validation
+2026-10-13 14:51:32,BOX-007,EMERGENCY_LOCK,CLOSED,True,INTERPOL_ALERT_TRIGGER: Immediate security lockout at BOX-007
+2026-10-13 14:53:06,BOX-011,OPEN_EXIT_DOOR,OPEN,False,Access granted to Schengen territory after validation
+2026-10-13 14:54:20,BOX-008,EMERGENCY_LOCK,CLOSED,True,INTERPOL_ALERT_TRIGGER: Immediate security lockout at BOX-008
+2026-10-13 14:55:15,BOX-007,OPEN_EXIT_DOOR,OPEN,False,Access granted to Schengen territory after validation
+2026-10-13 14:57:19,BOX-006,OPEN_EXIT_DOOR,OPEN,False,Access granted to Schengen territory after validation
+2026-10-13 15:00:16,BOX-001,DIVERT_SECONDARY,SIDE_OPEN,False,Mandatory diversion to secondary inspection corridor
+2026-10-13 15:03:03,BOX-004,EMERGENCY_LOCK,CLOSED,True,INTERPOL_ALERT_TRIGGER: Immediate security lockout at BOX-004
+2026-10-13 15:06:10,BOX-005,CLOSE_FRONT_DOOR,CLOSED,False,Passenger in sterile airlock initiating facial scan
+2026-10-13 15:08:49,BOX-012,CLOSE_FRONT_DOOR,CLOSED,False,Passenger in sterile airlock initiating facial scan
+2026-10-13 15:10:58,BOX-011,DIVERT_SECONDARY,SIDE_OPEN,False,Mandatory diversion to secondary inspection corridor
+2026-10-13 15:12:14,BOX-004,CLOSE_FRONT_DOOR,CLOSED,False,Passenger in sterile airlock initiating facial scan
+2026-10-13 15:13:47,BOX-008,DIVERT_SECONDARY,SIDE_OPEN,False,Mandatory diversion to secondary inspection corridor
+2026-10-13 15:16:35,BOX-012,OPEN_EXIT_DOOR,OPEN,False,Access granted to Schengen territory after validation
+2026-10-13 15:18:52,BOX-011,OPEN_EXIT_DOOR,OPEN,False,Access granted to Schengen territory after validation
+2026-10-13 15:19:48,BOX-011,OPEN_EXIT_DOOR,OPEN,False,Access granted to Schengen territory after validation
+2026-10-13 15:22:33,BOX-002,CLOSE_FRONT_DOOR,CLOSED,False,Passenger in sterile airlock initiating facial scan
+2026-10-13 15:24:04,BOX-006,EMERGENCY_LOCK,CLOSED,True,INTERPOL_ALERT_TRIGGER: Immediate security lockout at BOX-006
+2026-10-13 15:27:57,BOX-009,DIVERT_SECONDARY,SIDE_OPEN,False,Mandatory diversion to secondary inspection corridor
+2026-10-13 15:30:09,BOX-009,DIVERT_SECONDARY,SIDE_OPEN,False,Mandatory diversion to secondary inspection corridor
+2026-10-13 15:31:28,BOX-009,CLOSE_FRONT_DOOR,CLOSED,False,Passenger in sterile airlock initiating facial scan
+2026-10-13 15:32:37,BOX-012,EMERGENCY_LOCK,CLOSED,True,INTERPOL_ALERT_TRIGGER: Immediate security lockout at BOX-012
+2026-10-13 15:34:28,BOX-009,CLOSE_FRONT_DOOR,CLOSED,False,Passenger in sterile airlock initiating facial scan
+2026-10-13 15:35:26,BOX-009,CLOSE_FRONT_DOOR,CLOSED,False,Passenger in sterile airlock initiating facial scan
+2026-10-13 15:37:29,BOX-009,OPEN_EXIT_DOOR,OPEN,False,Access granted to Schengen territory after validation
+2026-10-13 15:40:01,BOX-012,DIVERT_SECONDARY,SIDE_OPEN,False,Mandatory diversion to secondary inspection corridor
+2026-10-13 15:42:47,BOX-001,CLOSE_FRONT_DOOR,CLOSED,False,Passenger in sterile airlock initiating facial scan
