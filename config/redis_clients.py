@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 ENV_PATH = BASE_DIR / ".env"
-load_dotenv(dotenv_path=ENV_PATH)
+load_dotenv(dotenv_path=ENV_PATH,override=True)
 
 REDIS_LOCAL_HOST = os.getenv("REDIS_LOCAL_HOST", "localhost")
 REDIS_LOCAL_PORT = int(os.getenv("REDIS_LOCAL_PORT", 6379))
