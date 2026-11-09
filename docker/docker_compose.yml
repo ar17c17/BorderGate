@@ -1,4 +1,5 @@
 services:
+  # 1. MASTER NODE
   redis-local:
     image: redis:7
     container_name: bordergate-redis-local
@@ -8,6 +9,80 @@ services:
     volumes:
       - redis_local_data:/data
     command: redis-server --appendonly yes
+    networks:
+      - redisnet
+
+  # 2. FIRST REPLICA (port 6380)
+  redis-replica-1:
+    image: redis:7
+    container_name: bordergate-redis-replica-1
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    command: redis-server --replicaof redis-local 6379 --appendonly yes
+    depends_on:
+      - redis-local
+    networks:
+      - redisnet
+
+  # 3. SECOND REPLICA (port 6381)
+  redis-replica-2:
+    image: redis:7
+    container_name: bordergate-redis-replica-2
+    restart: unless-stopped
+    ports:
+      - "6381:6379"
+    command: redis-server --replicaof redis-local 6379 --appendonly yes
+    depends_on:
+      - redis-local
+    networks:
+      - redisnet
+
+  # 4. SENTINEL 1
+  sentinel-1:
+    image: redis:7
+    container_name: bordergate-sentinel-1
+    command: >
+      sh -c "cp /etc/redis/sentinel1.conf /tmp/sentinel.conf &&
+             redis-sentinel /tmp/sentinel.conf"
+    volumes:
+      - ./sentinel1.conf:/etc/redis/sentinel1.conf:ro
+    depends_on:
+      - redis-local
+      - redis-replica-1
+      - redis-replica-2
+    networks:
+      - redisnet
+
+  # 5. SENTINEL 2
+  sentinel-2:
+    image: redis:7
+    container_name: bordergate-sentinel-2
+    command: >
+      sh -c "cp /etc/redis/sentinel2.conf /tmp/sentinel.conf &&
+             redis-sentinel /tmp/sentinel.conf"
+    volumes:
+      - ./sentinel2.conf:/etc/redis/sentinel2.conf:ro
+    depends_on:
+      - redis-local
+      - redis-replica-1
+      - redis-replica-2
+    networks:
+      - redisnet
+
+  # 6. SENTINEL 3
+  sentinel-3:
+    image: redis:7
+    container_name: bordergate-sentinel-3
+    command: >
+      sh -c "cp /etc/redis/sentinel3.conf /tmp/sentinel.conf &&
+             redis-sentinel /tmp/sentinel.conf"
+    volumes:
+      - ./sentinel3.conf:/etc/redis/sentinel3.conf:ro
+    depends_on:
+      - redis-local
+      - redis-replica-1
+      - redis-replica-2
     networks:
       - redisnet
 

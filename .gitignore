@@ -1,5 +1,8 @@
 .env
 .venv/
+docker/sentinel1.conf
+docker/sentinel2.conf
+docker/sentinel3.conf
 __pycache__/
 
 
