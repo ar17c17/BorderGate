@@ -121,6 +121,8 @@ def start_consumer():
             "gate_action": action,
             "reason": reason
         }
+        log = {k: ("" if v is None else str(v)) for k, v in log.items()}
+        logs_key = f"log:{timestamp[:10]}:{ticket_number}"
         r_local.hset(logs_key,mapping=log)
         r_local.expire(logs_key,604800) # 7 Day TTL
         r_local.lrem(processing_queue, 1, event)

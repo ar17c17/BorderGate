@@ -165,11 +165,7 @@ To spawn workers for all 12 available booths sequentially:
 
 ```bash
 
-for i in $(seq -f "%03g" 1 12); do
-
-    BOOTH_ID="BOX-$i" uv run python -m src.consumer &
-
-done
+for i in $(seq -f "%03g" 1 12); do BOOTH_ID="BOX-$i" uv run python -m src.consumer & done
 
 ```
 
