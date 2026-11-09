@@ -36,8 +36,8 @@ def evaluate_passenger(passenger,r_cloud):
     if not nfc_valid or biometric_score < 0.7:
         priority = 0
         if not nfc_valid:
-             priority = 50
-        priority += 100 - biometric_score*100
+             priority = 10
+        priority += 90 * (1 - biometric_score)
         return {
             "status": "SECONDARY_INSPECTION",
             "reason": f"Biometric threshold failed (Score: {biometric_score}, NFC Valid: {nfc_valid})",

@@ -35,7 +35,7 @@ def main():
             timestamp_str = now_utc.strftime("%Y-%m-%d %H:%M:%S")
             date_prefix = now_utc.strftime("%Y-%m-%d")
 
-            if passenger['nfc_valid'] or float(passenger['biometric_match_score']) >= 0.50:
+            if passenger['nfc_valid'] or float(passenger['biometric_match_score']) >= 0.6:
                 resolution = "RESOLVED_APPROVED"
                 action = "SECONDARY_CLEARANCE_GRANTED"
                 print(f"DECISION  : {resolution} — {action}")
