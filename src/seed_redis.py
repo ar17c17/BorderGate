@@ -1,7 +1,9 @@
 import csv
 import json
 from pathlib import Path
-from config.redis_clients import get_cloud_redis, get_local_redis
+from config.redis_clients import get_cloud_redis, get_local_redis, safe_publish, safe_execute,safe_delete
+from redis.exceptions import NoPermissionError, RedisError
+
 
 # =============================================================================
 # PATH CONFIGURATION
@@ -24,7 +26,7 @@ def seed_cloud(r_cloud):
         with open(stolen_file, mode='r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             # Limpiar clave de tipo SET
-            r_cloud.delete('blacklist:stolen_passports')
+            safe_delete(r_cloud, 'blacklist:stolen_passports')
             count = 0
             pipe = r_cloud.pipeline()
             for row in reader:
@@ -34,8 +36,9 @@ def seed_cloud(r_cloud):
                 # 2. Guardar ficha completa del robo en un HASH
                 pipe.hset(f'stolen:{passport}', mapping=row)
                 count += 1
-            pipe.execute()
-            print(f"Loaded {count} stolen passports into SET 'blacklist:stolen_passports' and HASHES 'stolen:*'")
+            estado = safe_execute(pipe, "Cloud ingestion, stolen passports")
+            if estado:
+                print(f"Loaded {count} stolen passports into SET 'blacklist:stolen_passports' and HASHES 'stolen:*'")
 
     # -------------------------------------------------------------------------
     #  Wanted People List (ZSET + HASH)
@@ -45,7 +48,7 @@ def seed_cloud(r_cloud):
         with open(wanted_file, mode='r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             # Limpiar únicamente el ZSET de personas buscadas (removido el delete accidental de stolen)
-            r_cloud.delete('blacklist:wanted_persons')
+            safe_delete(r_cloud,'blacklist:wanted_persons')
 
             count = 0
             pipe = r_cloud.pipeline()
@@ -66,8 +69,9 @@ def seed_cloud(r_cloud):
                 pipe.zadd('blacklist:wanted_persons', {passport: score})
                 count += 1
                 
-            pipe.execute()
-            print(f"Loaded {count} wanted individuals into ZSET 'blacklist:wanted_persons' and HASHES 'wanted:*'")
+            errn = safe_execute(pipe,"Cloud Ingestion: blacklist:wanted_persons ")
+            if errn:
+                print(f"Loaded {count} wanted individuals into ZSET 'blacklist:wanted_persons' and HASHES 'wanted:*'")
 
     # -------------------------------------------------------------------------
     #  Visa Entry Policies (HASH per country)
@@ -85,8 +89,9 @@ def seed_cloud(r_cloud):
                 pipe.delete(key)
                 pipe.hset(key, mapping=row)
                 count += 1
-            pipe.execute()
-            print(f"Loaded {count} visa policy rules into HASHES 'policy:visa:*'")
+            errn = safe_execute(pipe,"Cloud Ingestion: visa policies ")
+            if errn:
+                print(f"Loaded {count} visa policy rules into HASHES 'policy:visa:*'")
 
     
     # -------------------------------------------------------------------------
@@ -116,8 +121,9 @@ def seed_cloud(r_cloud):
 
                 count += 1
 
-            pipe.execute()
-            print(f"Initialized {count} active officer sessions into HASHes 'session:agent:*' and secondary indexes 'cabin:active:*'")
+            errn = safe_execute(pipe,"Cloud Ingestion: blacklist: agent sessions ")
+            if errn:
+                print(f"Initialized {count} active officer sessions into HASHes 'session:agent:*' and secondary indexes 'cabin:active:*'")
 
 
 # =============================================================================
@@ -168,8 +174,13 @@ if __name__ == '__main__':
         r_cld = get_cloud_redis()
 
         # Execute ingestion routines
-        seed_cloud(r_cld)
         seed_local(r_loc)
+        #try:
+        seed_cloud(r_cld)
+        #except NoPermissionError as err:
+         #   print(f"[WARN] Permission denied.'")
+            
+
 
         print('\nAll datasets successfully loaded into Redis.')
 

@@ -3,10 +3,12 @@ import os
 import sys
 import time
 from datetime import datetime, timezone
-from config.redis_clients import get_cloud_redis, get_local_redis
+from config.redis_clients import get_cloud_redis, get_local_redis, safe_publish
 from src.evaluator import evaluate_passenger
+
 # Set target booth ID for this worker process (fallback to BOX-001)
 BOOTH_ID = os.getenv("BOOTH_ID", sys.argv[1] if len(sys.argv) > 1 else "BOX-001")
+
 
 
 def start_consumer():
@@ -94,7 +96,7 @@ def start_consumer():
                 "status": status,
                 "reason": reason,
                 "action": action}
-            r_cloud.publish("alerts:security_breach", json.dumps(alert))
+            safe_publish(r_cloud, "alerts:security_breach", alert)
             denied +=1
         elif status == "SECONDARY_INSPECTION":
             print(f"[SECONDARY REVIEW] {reason}, Action: {action}\n")
