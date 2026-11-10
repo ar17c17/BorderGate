@@ -385,35 +385,20 @@ BorderGate relies on a hybrid data topology to maximize throughput, enforce stri
 ### Key & Data Structure Specifications
 
 
-
 | Scope | Key Pattern | Type | Operations | Purpose / Description |
-
 |---|---|---|---|---|
-
 | **Cloud** | `blacklist:stolen_passports` | `SET` | `SISMEMBER`, `SADD` | Global lookup for stolen passport numbers. |
-
 | **Cloud** | `stolen:<passport_number>` | `HASH` | `HGETALL`, `HSET` | Complete incident report details for stolen passports. |
-
 | **Cloud** | `blacklist:wanted_persons` | `ZSET` | `ZSCORE`, `ZADD` | Fugitive blacklist sorted by threat score (`1` Low to `4` Critical). |
-
 | **Cloud** | `wanted:<passport_number>` | `HASH` | `HGETALL`, `HSET` | Active arrest warrant details and alert instructions. |
-
 | **Cloud** | `policy:visa:<country_code>` | `HASH` | `HGETALL`, `HSET` | Country-specific visa entry rules (`visa_required: True/False`). |
-
 | **Cloud** | `session:agent:<badge_number>` | `HASH` | `HGETALL`, `EXPIRE` | Active police officer credentials and session metrics. |
-
 | **Cloud** | `cabin:active:<booth_id>` | `STRING` | `GET`, `SET` | Maps booth ID to officer badge number. |
-
 | **Cloud** | `alerts:security_breach` | `Pub/Sub` | `PUBLISH`, `SUBSCRIBE` | Real-time alert broadcast channel for high-level breaches (SUB). |
-
 | **Local** | `queue:passengers:<booth_id>` | `LIST` | `RPUSH`, `BLMOVE` | Per-booth incoming passenger buffer (FIFO queue). |
-
 | **Local** | `queue:passengers:processing:<booth_id>` | `LIST` | `BLMOVE`, `LREM` | Atomic in-flight processing list for resilience against crashes. |
-
 | **Local** | `queue:secondary_review:ranking` | `ZSET` | `ZADD`, `ZPOPMAX` | Priority queue ordered by dynamic risk score (`(50 if not nfc_valid) + (100 - bio_score * 100)`). |
-
 | **Local** | `log:<YYYY-MM-DD>:<ticket_number>` | `HASH` | `HSET`, `EXPIRE` | Audit trail per passenger check with a 7-day TTL expiration. |
-
 
 
 ---
@@ -432,71 +417,44 @@ To ensure zero downtime, data resilience, and seamless fault tolerance at border
 
 - **3 Sentinel instances** (`sentinel-1`, `sentinel-2`, `sentinel-3` on port `26379`), providing distributed consensus with a quorum of 2 (`2/3`).
 
-
+This is defined in the docker_compose.yml.
 
 ```text
-
-                           ┌────────────────────────┐
-
-                           │      sentinel-1        │
-
-                           │     (Port 26379)       │
-
-                           └───────────┬────────────┘
-
-                                       │
-
-                     Quorum 2/3 Pub/Sub Gossip Protocol
-
-                                       │
-
-          ┌────────────────────────────┴────────────────────────────┐
-
-          ▼                                                         ▼
-
-┌──────────────────┐                                      ┌──────────────────┐
-
-│   sentinel-2     │◄────────────────────────────────────►│   sentinel-3     │
-
-│  (Port 26379)    │                                      │  (Port 26379)    │
-
-└─────────┬────────┘                                      └─────────┬────────┘
-
-          │                                                         │
-
-          └────────────────────────────┬────────────────────────────┘
-
-                                       │
-
-                      Monitors Master (Heartbeat: 5s)
-
-                                       ▼
-
-                         ┌───────────────────────────┐
-
-                         │   bordergate-redis-local  │
-
-                         │      (Master: 6379)       │
-
-                         └─────────────┬─────────────┘
-
-                                       │
-
-                        Async Replication Stream (AOF)
-
-                                       │
-
-                 ┌─────────────────────┴─────────────────────┐
-
-                 ▼                                           ▼
-
-   ┌───────────────────────────┐               ┌───────────────────────────┐
-
-   │ bordergate-redis-replica-1│               │ bordergate-redis-replica-2│
-
-   │      (Replica: 6380)      │               │      (Replica: 6381)      │
-
-   └───────────────────────────┘               └───────────────────────────┘
+                     ╔═════════════════════════════════╗
+                     ║           sentinel-1            ║
+                     ║          (Port: 26379)          ║
+                     ╚════════════════╤════════════════╝
+                                      │
+                            Quorum 2/3 · Pub/Sub  
+                                      │
+              ┌───────────────────────┴───────────────────────┐
+              ▼                                               ▼
+   ╔═════════════════════╗                         ╔═════════════════════╗
+   ║     sentinel-2      ║◄═══════════════════════►║     sentinel-3      ║
+   ║    (Port: 26379)    ║                         ║    (Port: 26379)    ║
+   ╚══════════╤══════════╝                         ╚══════════╤══════════╝
+              │                                               │
+              └───────────────────────┬───────────────────────┘
+                                      │
+                                  (PING: 5s)
+                           + Auto-Failover Orchestration
+                                      │
+                                      ▼
+                     ╔═════════════════════════════════╗
+                     ║     bordergate-redis-local      ║
+                     ║       [PRIMARY MASTER : 6379]   ║
+                     ║       (Read / Write · AOF)      ║
+                     ╚════════════════╤════════════════╝
+                                      │
+                                      |
+                                      │
+              ┌───────────────────────┴───────────────────────┐
+              ▼                                               ▼
+   ╔═════════════════════════════╗         ╔═════════════════════════════╗
+   │ bordergate-redis-replica-1  │         │ bordergate-redis-replica-2  │
+   │    [REPLICA 1 : 6380]       │         │    [REPLICA 2 : 6381]       │
+   │    (Read-Only · slave)      │         │    (Read-Only · slave)      │
+   ╚═════════════════════════════╝         ╚═════════════════════════════╝
 
 ```
 
@@ -605,215 +563,6 @@ cp docker/sentinel.conf.example docker/sentinel3.conf
 
 
 ---
-
-
-
-#### 1.4 Multi-Container Topology (`docker/docker_compose.yml`)
-
-
-
-The cluster mounts the local configuration files as read-only (`:ro`) and copies them to `/tmp/sentinel.conf` inside the containers upon startup. This avoids Linux bind-mount filesystem locking errors (`EBUSY: Device or resource busy`) while allowing Sentinel to persist updates:
-
-
-
-```yaml
-
-services:
-
-  # 1. MASTER NODE
-
-  redis-local:
-
-    image: redis:7
-
-    container_name: bordergate-redis-local
-
-    restart: unless-stopped
-
-    ports:
-
-      - "${REDIS_LOCAL_PORT:-6379}:6379"
-
-    volumes:
-
-      - redis_local_data:/data
-
-    command: redis-server --appendonly yes
-
-    networks:
-
-      - redisnet
-
-
-
-  # 2. FIRST REPLICA (port 6380)
-
-  redis-replica-1:
-
-    image: redis:7
-
-    container_name: bordergate-redis-replica-1
-
-    restart: unless-stopped
-
-    ports:
-
-      - "6380:6379"
-
-    command: redis-server --replicaof redis-local 6379 --appendonly yes
-
-    depends_on:
-
-      - redis-local
-
-    networks:
-
-      - redisnet
-
-
-
-  # 3. SECOND REPLICA (port 6381)
-
-  redis-replica-2:
-
-    image: redis:7
-
-    container_name: bordergate-redis-replica-2
-
-    restart: unless-stopped
-
-    ports:
-
-      - "6381:6379"
-
-    command: redis-server --replicaof redis-local 6379 --appendonly yes
-
-    depends_on:
-
-      - redis-local
-
-    networks:
-
-      - redisnet
-
-
-
-  # 4. SENTINEL 1
-
-  sentinel-1:
-
-    image: redis:7
-
-    container_name: bordergate-sentinel-1
-
-    command: >
-
-      sh -c "cp /etc/redis/sentinel1.conf /tmp/sentinel.conf &&
-
-             redis-sentinel /tmp/sentinel.conf"
-
-    volumes:
-
-      - ./sentinel1.conf:/etc/redis/sentinel1.conf:ro
-
-    depends_on:
-
-      - redis-local
-
-      - redis-replica-1
-
-      - redis-replica-2
-
-    networks:
-
-      - redisnet
-
-
-
-  # 5. SENTINEL 2
-
-  sentinel-2:
-
-    image: bordergate-sentinel-2
-
-    image: redis:7
-
-    container_name: bordergate-sentinel-2
-
-    command: >
-
-      sh -c "cp /etc/redis/sentinel2.conf /tmp/sentinel.conf &&
-
-             redis-sentinel /tmp/sentinel.conf"
-
-    volumes:
-
-      - ./sentinel2.conf:/etc/redis/sentinel2.conf:ro
-
-    depends_on:
-
-      - redis-local
-
-      - redis-replica-1
-
-      - redis-replica-2
-
-    networks:
-
-      - redisnet
-
-
-
-  # 6. SENTINEL 3
-
-  sentinel-3:
-
-    image: redis:7
-
-    container_name: bordergate-sentinel-3
-
-    command: >
-
-      sh -c "cp /etc/redis/sentinel3.conf /tmp/sentinel.conf &&
-
-             redis-sentinel /tmp/sentinel.conf"
-
-    volumes:
-
-      - ./sentinel3.conf:/etc/redis/sentinel3.conf:ro
-
-    depends_on:
-
-      - redis-local
-
-      - redis-replica-1
-
-      - redis-replica-2
-
-    networks:
-
-      - redisnet
-
-
-
-networks:
-
-  redisnet:
-
-    driver: bridge
-
-
-
-volumes:
-
-  redis_local_data:
-
-```
-
-
-
----
-
 
 
 ### 2. Cluster Deployment & Validation
@@ -1002,10 +751,7 @@ docker exec -it bordergate-redis-replica-2 redis-cli ZRANGE secondary_review:ran
 
 #### 3.4 Verify Read-Only Enforcement on Replicas
 
-
-
 Verify that client writes directly targeting a replica are strictly rejected:
-
 
 
 ```bash
@@ -1013,8 +759,6 @@ Verify that client writes directly targeting a replica are strictly rejected:
 docker exec -it bordergate-redis-replica-1 redis-cli SET test_bypass "unauthorized"
 
 ```
-
-
 
 *Expected Output:*
 
@@ -1025,9 +769,6 @@ docker exec -it bordergate-redis-replica-1 redis-cli SET test_bypass "unauthoriz
 (error) READONLY You can't write against a read only replica.
 
 ```
-
-
-
 ---
 
 
@@ -1120,12 +861,11 @@ Simulate an unexpected crash of the primary master node to observe Sentinel's au
 
 
 
-#### 4.2 Fully Manual Failover (Bypassing Sentinel Automation)
+#### 4.2 Fully Manual Failover 
 
 
 
 To perform a complete manual role switch without Sentinel intervention:
-
 
 
 1. **Stop all Sentinel instances:**
@@ -1135,7 +875,6 @@ To perform a complete manual role switch without Sentinel intervention:
    docker stop bordergate-sentinel-1 bordergate-sentinel-2 bordergate-sentinel-3
 
    ```
-
 
 
 2. **Promote a designated replica to Master:**
@@ -1157,7 +896,6 @@ To perform a complete manual role switch without Sentinel intervention:
    ```
 
 
-
 3. **Re-point the second replica to the new Master:**
 
    ```bash
@@ -1165,7 +903,6 @@ To perform a complete manual role switch without Sentinel intervention:
    docker exec -it bordergate-redis-replica-2 redis-cli REPLICAOF redis-replica-1 6379
 
    ```
-
 
 
 4. **Demote the old master to replica:**
@@ -1185,7 +922,6 @@ To perform a complete manual role switch without Sentinel intervention:
    # Expected output: role:slave
 
    ```
-
 
 
 5. **Restart Sentinels and sync topology:**
