@@ -471,6 +471,20 @@ docker exec -it bordergate-sentinel-1 redis-cli -p 26379 sentinel get-master-add
 
 Redis keeps the **live** state of the border (queues, sessions, alerts) and its audit logs expire after 7 days (`log:<date>:<ticket>`, TTL 604800 s). Cassandra is the **permanent historical archive**: every crossing is stored and can be queried by passport, booth/day, alerts, secondary inspections and daily statistics.
 
+                     ┌──────────────────────────────────────────────┐
+                     │            BORDERGATE DATA LIFECYCLE         │
+                     └──────────────────────────────────────────────┘
+
+   LIVE (seconds → 7 days)                         HISTORY (permanent)
+ ───────────────────────────────                ──────────────────────────────────
+  REDIS LOCAL (Docker)                            APACHE CASSANDRA (Docker, 1 node)
+   • Passenger queues (LIST)                       Keyspace: border_crossing
+   • Secondary ranking (ZSET)          ═════►      DC: Mad_Barajas · RF = 1
+   • Audit logs (HASH, TTL 7d)                     Consistency: LOCAL_QUORUM
+  REDIS CLOUD                                      • 5 query-driven tables
+   • Blacklists, visa policies                     • Q1–Q6 single-partition reads
+   • Pub/Sub security alerts (ephemeral)
+
 ### 1. Deploy a Single Cassandra Node (Docker)
 
 ```bash
@@ -545,6 +559,18 @@ docker exec -it bordergate-cassandra cqlsh -e "SELECT keyspace_name, durable_wri
 
 `data/seed_data/cassandra_border_crossings.csv` contains 5,147 synthetic crossings (12 Oct – 10 Nov 2026) built from the same catalogs used by Redis (booths, officers, flights, stolen/wanted passports, visa policies). Each crossing is written to every table that needs it (denormalization):
 
+            cassandra_border_crossings.csv  (1 row = 1 crossing)
+                                │
+                                ▼
+                   src/seed_cassandra.py (prepared statements)
+                                │
+      ┌─────────────────┬───────┴──────────┬──────────────────┬───────────────────────┐
+      │ always          │ always           │ always (+1)      │ if DENIED_*           │ if SECONDARY_INSPECTION
+      ▼                 ▼                  ▼                  ▼                       ▼
+crossings_by_      crossings_by_      crossing_stats_     alerts_by_day      secondary_reviews_by_day
+  passport           booth_day           by_day               (Q4)                   (Q5)
+   (Q1)              (Q2, Q3)          (Q6, counter)
+
 ```bash
 uv run python -m src.seed_cassandra
 ```
@@ -552,11 +578,13 @@ uv run python -m src.seed_cassandra
 *Expected Output:*
 
 ```text
+Loading Cassandra dataset...
   by_passport: 5147 writes
   by_booth_day: 5147 writes
+  stats: 5147 writes
   alerts: 287 writes
   secondary: 338 writes
-  stats: 5147 writes
+Done in 8.43 s
 ```
 
 Load design:
@@ -591,12 +619,12 @@ uv run python -m src.query_cassandra
 
 ```text
 Q     Rows   Avg (ms)   Min (ms)   Description
-Q1      43       1.51       0.92   Crossing history of a passport (most recent first)
-Q2       9       0.87       0.64   All crossings at a booth on a given day
-Q3       6       1.25       0.88   Crossings at a booth on a given day within a time range
-Q4       9       0.89       0.73   Security alerts raised at booths on a given day (most recent first)
-Q5       5       1.32       0.81   Top-N most urgent secondary inspections on a given day
-Q6      54       1.74       1.20   Number of crossings by status and nationality on a given day
+Q1      43       1.51       0.92   Crossing history of a passport (most recent first).
+Q2       9       0.87       0.64   All crossings at a booth on a given day.
+Q3       6       1.25       0.88   Crossings at a booth on a given day within a time range.
+Q4       9       0.89       0.73   Security alerts raised at booths on a given day (most recent first).
+Q5       5       1.32       0.81   Top-N most urgent secondary inspections on a given day.
+Q6      54       1.74       1.20   Number of crossings by status and nationality on a given day.
 ```
 
 Every query reads a **single partition**, located directly from the hash of its partition key: no joins, no full scans, no sorting at query time.
@@ -646,3 +674,73 @@ docker start bordergate-cassandra   # wait for "Starting listening for CQL clien
 ```
 
 Data persists in the `bordergate-cassandra-data` volume.
+
+---
+
+## Cassandra Tests
+
+### 1. Partition Strategy Evidence
+
+```bash
+docker exec -it bordergate-cassandra nodetool flush
+docker exec -it bordergate-cassandra nodetool tablestats border_crossing
+```
+
+*Check:* `Number of partitions (estimate)` per table. `crossings_by_booth_day` holds one small partition per booth and day (daily bucketing), while `alerts_by_day` and `secondary_reviews_by_day` hold one partition per day.
+
+Locate the node that owns a partition (partition key → Murmur3 token → node):
+
+```bash
+docker exec -it bordergate-cassandra nodetool getendpoints border_crossing crossings_by_passport ESP-572524
+docker exec -it bordergate-cassandra nodetool getendpoints border_crossing crossings_by_booth_day BOX-007:2026-10-21
+```
+
+---
+
+### 2. Quorum Requirement (RF > available replicas)
+
+```sql
+CREATE KEYSPACE quorum_test WITH replication = {'class': 'NetworkTopologyStrategy', 'Mad_Barajas': 3};
+CREATE TABLE quorum_test.t (id int PRIMARY KEY, v text);
+
+CONSISTENCY LOCAL_QUORUM;
+INSERT INTO quorum_test.t (id, v) VALUES (1, 'test');   -- fails: 2 replicas required, 1 alive
+
+CONSISTENCY ONE;
+INSERT INTO quorum_test.t (id, v) VALUES (1, 'test');   -- succeeds
+
+DROP KEYSPACE quorum_test;
+```
+
+*Expected Result:* with RF = 3 on a single node, `LOCAL_QUORUM` (2 replicas) cannot be achieved; `ONE` succeeds. This is why `border_crossing` uses `Mad_Barajas: 1`.
+
+---
+
+### 3. Node Failure Handling
+
+```bash
+docker stop bordergate-cassandra
+uv run python -m src.query_cassandra
+```
+
+*Expected Output:*
+
+```text
+ConnectionError: Could not connect to Cassandra at localhost:9042
+```
+
+```bash
+docker start bordergate-cassandra
+```
+
+Once the node accepts CQL connections again, all data is still available (persistent volume).
+
+---
+
+### 4. Query-Driven Model: Non-Key Filtering Is Rejected
+
+```sql
+SELECT crossing_ts, full_name, status FROM border_crossing.alerts_by_day WHERE nationality = 'NGA';
+```
+
+*Expected Result:* `InvalidRequest ... use ALLOW FILTERING`. Filtering by a non-key column would scan every partition; the correct solution in Cassandra is a new table designed for that query, not `ALLOW FILTERING`.

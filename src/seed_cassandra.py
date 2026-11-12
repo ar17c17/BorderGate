@@ -1,4 +1,5 @@
 import csv
+import time
 import uuid
 from datetime import datetime, date, timezone
 from pathlib import Path
@@ -121,8 +122,11 @@ def seed(session):
 if __name__ == "__main__":
     cluster, session = get_cassandra_session()
     try:
+        start = time.perf_counter()
         counts = seed(session)
+        elapsed = time.perf_counter() - start
         for table, n in counts.items():
             print(f"  {table}: {n} writes")
+        print(f"Done in {elapsed:.2f} s")
     finally:
         cluster.shutdown()
