@@ -18,8 +18,14 @@ This repository contains the implementation and data infrastructure for **Border
 BorderGate/
 ├── config/
 │   └── redis_clients.py            # Local (Docker) and Cloud Redis client initializers
+│   └── cassandra_client.py         # Cassandra session (LOCAL_QUORUM, DC-aware + token-aware routing)
+├── cql/
+│   ├── schema.cql                  # Keyspace (NetworkTopologyStrategy) and 5 query-driven tables
+│   ├── inserts.cql                 # Sample CQL inserts for every table (denormalization example)
+│   └── queries.cql                 # CQL queries Q1-Q6 with sample values   
 ├── data/
 │   └── seed_data/                  # Initial synthetic dataset CSV files
+│       ├── cassandra_border_crossings.csv
 │       ├── cloud_agent_sessions.csv
 │       ├── cloud_stolen_passports.csv
 │       ├── cloud_visa_policies.csv
@@ -37,6 +43,8 @@ BorderGate/
 │   ├── secondary_review.py         # Priority-ranked second-line inspection monitor
 │   ├── security_alerts.py          # Real-time Pub/Sub security breach listener
 │   ├── seed_redis.py               # Redis Cloud & Local data loader
+│   ├── seed_cassandra.py           # Cassandra loader (denormalized writes to 5 tables)
+│   ├── query_cassandra.py          # Cassandra queries Q1-Q6 with execution time (ms)
 │   └── test_connect.py             # Connection validation script
 ├── .env                            # Local credentials & ports (Git ignored)
 ├── .env.example                    # Environment template without credentials
@@ -76,6 +84,12 @@ REDIS_CLOUD_HOST=your-redis-cloud-endpoint.db.redis.io
 REDIS_CLOUD_PORT=12438
 REDIS_CLOUD_USER=default
 REDIS_CLOUD_PASSWORD=your_password
+
+# Cassandra (Docker, single node)
+CASSANDRA_HOST=localhost
+CASSANDRA_PORT=9042
+CASSANDRA_KEYSPACE=border_crossing
+CASSANDRA_LOCAL_DC=Mad_Barajas
 ```
 
 ---
@@ -450,3 +464,185 @@ docker exec -it bordergate-redis-local redis-cli INFO replication | grep role
 docker exec -it bordergate-sentinel-1 redis-cli -p 26379 sentinel get-master-addr-by-name bordergate-master
 # Expected output: points back to redis-local 
 ```
+
+---
+
+## Cassandra — Historical Border Crossing Archive
+
+Redis keeps the **live** state of the border (queues, sessions, alerts) and its audit logs expire after 7 days (`log:<date>:<ticket>`, TTL 604800 s). Cassandra is the **permanent historical archive**: every crossing is stored and can be queried by passport, booth/day, alerts, secondary inspections and daily statistics.
+
+### 1. Deploy a Single Cassandra Node (Docker)
+
+```bash
+docker pull cassandra:5.0
+docker network create bordergate-net
+docker volume create bordergate-cassandra-data
+
+docker run -d --restart unless-stopped \
+  --name bordergate-cassandra --hostname bordergate-cassandra \
+  --network bordergate-net -p 9042:9042 \
+  -v bordergate-cassandra-data:/var/lib/cassandra \
+  -e CASSANDRA_CLUSTER_NAME=BorderGate \
+  -e CASSANDRA_DC=Mad_Barajas \
+  -e CASSANDRA_RACK=rack1 \
+  -e CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch \
+  -e CASSANDRA_NUM_TOKENS=16 \
+  -e MAX_HEAP_SIZE=512M \
+  -e MAX_DIRECT_MEMORY_SIZE=256M \
+  cassandra:5.0
+```
+
+| Option | Purpose |
+|---|---|
+| `-p 9042:9042` | CQL native protocol port (cqlsh and the Python driver) |
+| `-v bordergate-cassandra-data:/var/lib/cassandra` | Persistent volume: data survives container removal |
+| `CASSANDRA_DC` / `CASSANDRA_RACK` | Datacenter and rack of the node, used by `NetworkTopologyStrategy` |
+| `GossipingPropertyFileSnitch` | Snitch that applies the DC/rack above (production-recommended) |
+| `CASSANDRA_NUM_TOKENS=16` | Virtual nodes (token ranges) owned by the node |
+| `MAX_HEAP_SIZE` / `MAX_DIRECT_MEMORY_SIZE` | JVM memory limits to fit in Docker Desktop |
+
+Startup takes 30–90 s. Wait for the node to accept CQL connections:
+
+```bash
+docker logs -f bordergate-cassandra
+# Wait for: Starting listening for CQL clients on /0.0.0.0:9042
+```
+
+> **Note:** the cluster name and datacenter are stored in the data volume on first start. To change them, remove both the container and the volume (`docker rm -f bordergate-cassandra && docker volume rm bordergate-cassandra-data`).
+
+---
+
+### 2. Verify the Node
+
+```bash
+docker exec -it bordergate-cassandra nodetool status
+```
+
+*Expected:* datacenter `Mad_Barajas`, one node with status `UN` (Up/Normal), `Tokens: 16`, `Owns: 100.0%`, rack `rack1`.
+
+---
+
+### 3. Create the Schema
+
+```bash
+docker exec -i bordergate-cassandra cqlsh < cql/schema.cql
+```
+
+> Use `-i` (not `-it`) when redirecting a file into `cqlsh`.
+
+Verify:
+
+```bash
+docker exec -it bordergate-cassandra cqlsh -e "DESCRIBE TABLES;"
+docker exec -it bordergate-cassandra cqlsh -e "SELECT keyspace_name, durable_writes, replication FROM system_schema.keyspaces WHERE keyspace_name = 'border_crossing';"
+```
+
+*Expected:* 5 tables in `border_crossing`, `durable_writes = True`, `NetworkTopologyStrategy` with `Mad_Barajas: 1`.
+
+---
+
+### 4. Load the Dataset
+
+`data/seed_data/cassandra_border_crossings.csv` contains 5,147 synthetic crossings (12 Oct – 10 Nov 2026) built from the same catalogs used by Redis (booths, officers, flights, stolen/wanted passports, visa policies). Each crossing is written to every table that needs it (denormalization):
+
+```bash
+uv run python -m src.seed_cassandra
+```
+
+*Expected Output:*
+
+```text
+  by_passport: 5147 writes
+  by_booth_day: 5147 writes
+  alerts: 287 writes
+  secondary: 338 writes
+  stats: 5147 writes
+```
+
+Load design:
+- **Prepared statements** (parsed once, typed, token-aware routing).
+- **Empty optional fields are sent as `UNSET_VALUE`**, never `null`, to avoid creating tombstones.
+- **No `BATCH`**: multi-partition batches are an anti-pattern for bulk loading in Cassandra.
+- **Counters are not idempotent**, so `crossing_stats_by_day` is truncated before every load. The other tables are safe to reload (same `crossing_id` → upsert).
+
+Optional — sample CQL inserts (run once; the counter `UPDATE` is not idempotent):
+
+```bash
+docker exec -i bordergate-cassandra cqlsh < cql/inserts.cql
+```
+
+---
+
+### 5. Run the Queries
+
+CQL version (sample values):
+
+```bash
+docker exec -i bordergate-cassandra cqlsh < cql/queries.cql
+```
+
+Python version with execution times (each query runs 5 times; average and minimum in ms):
+
+```bash
+uv run python -m src.query_cassandra
+```
+
+*Expected Output (times vary per machine):*
+
+```text
+Q     Rows   Avg (ms)   Min (ms)   Description
+Q1      43       1.51       0.92   Crossing history of a passport (most recent first)
+Q2       9       0.87       0.64   All crossings at a booth on a given day
+Q3       6       1.25       0.88   Crossings at a booth on a given day within a time range
+Q4       9       0.89       0.73   Security alerts raised at booths on a given day (most recent first)
+Q5       5       1.32       0.81   Top-N most urgent secondary inspections on a given day
+Q6      54       1.74       1.20   Number of crossings by status and nationality on a given day
+```
+
+Every query reads a **single partition**, located directly from the hash of its partition key: no joins, no full scans, no sorting at query time.
+
+---
+
+### Data Model (Query-Driven, Chebotko)
+
+| Table | Queries | Partition Key | Clustering Key | Notes |
+|---|---|---|---|---|
+| `crossings_by_passport` | Q1 | `passport_number` | `crossing_ts DESC`, `crossing_id ASC` | `full_name`, `nationality` are `STATIC` |
+| `crossings_by_booth_day` | Q2, Q3 | (`booth_id`, `crossing_date`) | `crossing_ts ASC`, `crossing_id ASC` | Daily bucketing bounds partition size |
+| `alerts_by_day` | Q4 | `crossing_date` | `crossing_ts DESC`, `crossing_id ASC` | Only `DENIED_*` crossings |
+| `secondary_reviews_by_day` | Q5 | `crossing_date` | `secondary_priority DESC`, `crossing_ts ASC`, `crossing_id ASC` | Top-N with `LIMIT` |
+| `crossing_stats_by_day` | Q6 | `crossing_date` | `status ASC`, `nationality ASC` | `crossing_count` counter |
+
+| ID | Query |
+|---|---|
+| Q1 | Crossing history of a passport (most recent first) |
+| Q2 | All crossings at a booth on a given day (chronological order) |
+| Q3 | Crossings at a booth on a given day within a time range |
+| Q4 | Security alerts raised at booths on a given day (most recent first) |
+| Q5 | Top-N most urgent secondary inspections on a given day |
+| Q6 | Number of crossings by status and nationality on a given day |
+
+`crossing_id` (UUID) is shared by all tables, so the same crossing can be traced across the denormalized copies.
+
+---
+
+### Replication & Consistency
+
+| Setting | Value | Reason |
+|---|---|---|
+| Replication strategy | `NetworkTopologyStrategy` | Consistent with the configured topology (GPFS + `Mad_Barajas`), production-recommended, allows adding datacenters with `ALTER KEYSPACE` |
+| Replication factor | `Mad_Barajas: 1` | Single node: more replicas than nodes is not possible. No fault tolerance (accepted lab limitation) |
+| Consistency level | `LOCAL_QUORUM` (client side) | With RF=1 it equals 1 replica (R + W = 2 > RF). If RF grows to 3 it becomes 2 + 2 > 3 with no code changes, and never waits for remote datacenters |
+
+The consistency level is set per session in `config/cassandra_client.py`, not in the keyspace: Cassandra uses tunable consistency per operation.
+
+---
+
+### Stop / Start the Node
+
+```bash
+docker stop bordergate-cassandra
+docker start bordergate-cassandra   # wait for "Starting listening for CQL clients"
+```
+
+Data persists in the `bordergate-cassandra-data` volume.

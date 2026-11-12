@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS "border_crossing"."crossings_by_passport" (
 )
 WITH CLUSTERING ORDER BY ("crossing_ts" DESC, "crossing_id" ASC);
 
--- Q2: Al crossing at a booth on a given day (chronological).
--- Q3: Crossing at a booth on a given day within a time range.
+-- Q2: All crossing at a booth on a given day (chronological order).
+-- Q3: Crossings at a booth on a given day within a time range.
 CREATE TABLE IF NOT EXISTS "border_crossing"."crossings_by_booth_day" (
   "booth_id" text,
   "crossing_date" date,
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS "border_crossing"."crossings_by_booth_day" (
 )
 WITH CLUSTERING ORDER BY ("crossing_ts" ASC, "crossing_id" ASC);
 
--- Q4: Security alerts raised at bootch on a given day (most recent first).
+-- Q4: Security alerts raised at booths on a given day (most recent first).
 CREATE TABLE IF NOT EXISTS "border_crossing"."alerts_by_day" (
   "crossing_date" date,
   "crossing_ts" timestamp,
@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS "border_crossing"."secondary_reviews_by_day" (
 )
 WITH CLUSTERING ORDER BY ("secondary_priority" DESC, "crossing_ts" ASC, "crossing_id" ASC);
 
--- Q6: Number of crossing by status and nationality on a given day.
+-- Q6: Number of crossings by status and nationality on a given day.
 CREATE TABLE IF NOT EXISTS "border_crossing"."crossing_stats_by_day" (
   "crossing_date" date,
   "status" text,

@@ -5,7 +5,7 @@ SELECT full_name, nationality, crossing_ts, booth_id, flight_code, status, reaso
 FROM border_crossing.crossings_by_passport
 WHERE passport_number = 'ESP-572524';
 
--- Q2: All crossings at a booth on a given day.
+-- Q2: All crossings at a booth on a given day (chronological order).
 SELECT officer_name, officer_badge, full_name, nationality, passport_number, crossing_ts, flight_code, biometric_match_score, nfc_valid, status, reason
 FROM border_crossing.crossings_by_booth_day
 WHERE booth_id = 'BOX-007'
@@ -19,7 +19,7 @@ WHERE booth_id = 'BOX-007'
   AND crossing_ts >= '2026-10-21 06:00:00+0000'
   AND crossing_ts < '2026-10-21 14:00:00+0000';
 
--- Q4: Security alerts raised at booths on a given day (most recent).
+-- Q4: Security alerts raised at booths on a given day (most recent first).
 SELECT crossing_ts, status, gate_action, booth_id, officer_name, officer_badge, full_name, nationality, passport_number, flight_code, threat_level, reason
 FROM border_crossing.alerts_by_day
 WHERE crossing_date = '2026-10-21';
