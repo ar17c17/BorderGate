@@ -578,12 +578,11 @@ uv run python -m src.seed_cassandra
 *Expected Output:*
 
 ```text
-Loading Cassandra dataset...
   by_passport: 5147 writes
   by_booth_day: 5147 writes
-  stats: 5147 writes
   alerts: 287 writes
   secondary: 338 writes
+  stats: 5147 writes
 Done in 8.43 s
 ```
 
@@ -620,7 +619,7 @@ uv run python -m src.query_cassandra
 ```text
 Q     Rows   Avg (ms)   Min (ms)   Description
 Q1      43       1.51       0.92   Crossing history of a passport (most recent first).
-Q2       9       0.87       0.64   All crossings at a booth on a given day.
+Q2       9       0.87       0.64   All crossings at a booth on a given day (chronological order).
 Q3       6       1.25       0.88   Crossings at a booth on a given day within a time range.
 Q4       9       0.89       0.73   Security alerts raised at booths on a given day (most recent first).
 Q5       5       1.32       0.81   Top-N most urgent secondary inspections on a given day.

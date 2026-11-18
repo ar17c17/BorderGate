@@ -30,15 +30,15 @@ VALUES
     'Passport flagged as stolen');
 
 -- Q5: secondary_reviews_by_day (a second passenger sent to secondary inspection)
--- priority = 90 * (1 - 0.52) = 43.2 ; approved because biometric >= 0.50
+-- priority = 90 * (1 - 0.62) = 34.2 ; approved because biometric >= 0.60
 INSERT INTO border_crossing.secondary_reviews_by_day
     (crossing_date, secondary_priority, crossing_ts, crossing_id, booth_id, ticket_number,
     passport_number, full_name, nationality, biometric_match_score, nfc_valid, reason,
     secondary_ts, secondary_resolution, secondary_action)
 VALUES
-    ('2026-11-12', 43.2, '2026-11-12 10:05:00+0000', aebe8815-b21a-4542-939f-cbf482938ec0,
-    'BOX-003', '002', 'CHE-900002', 'Jane Roe', 'CHE', 0.52, true,
-    'Biometric threshold failed (Score: 0.52, NFC Valid: True)',
+    ('2026-11-12', 34.2, '2026-11-12 10:05:00+0000', aebe8815-b21a-4542-939f-cbf482938ec0,
+    'BOX-003', '002', 'CHE-900002', 'Jane Roe', 'CHE', 0.62, true,
+    'Biometric threshold failed (Score: 0.62, NFC Valid: True)',
     '2026-11-12 10:18:00+0000', 'RESOLVED_APPROVED', 'SECONDARY_CLEARANCE_GRANTED');
 
 -- Q6: crossing_stats_by_day (counter table: UPDATE, never INSERT)

@@ -70,7 +70,7 @@ if __name__ == "__main__":
         print(f"{'Q':<4}{'Rows':>6}{'Avg (ms)':>11}{'Min (ms)':>11} Description")
         for q in QUERIES:
             statement = session.prepare(q['cql'])
-            rows, times = run_query(session, statement, q['values'], 5)
+            rows, times = run_query(session, statement, q['values'], 50)
             print(f"{q['id']:<4}{len(rows):>6}{sum(times)/len(times):>11.2f}{min(times):>11.2f} {q['description']}")
 
     finally:

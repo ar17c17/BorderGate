@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS "border_crossing"."crossings_by_passport" (
 )
 WITH CLUSTERING ORDER BY ("crossing_ts" DESC, "crossing_id" ASC);
 
--- Q2: All crossing at a booth on a given day (chronological order).
+-- Q2: All crossings at a booth on a given day (chronological order).
 -- Q3: Crossings at a booth on a given day within a time range.
 CREATE TABLE IF NOT EXISTS "border_crossing"."crossings_by_booth_day" (
   "booth_id" text,
