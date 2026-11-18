@@ -2,189 +2,137 @@ import argparse
 import csv
 import json
 from pathlib import Path
-from config.redis_clients import get_cloud_redis, get_local_redis, safe_publish, safe_execute, safe_delete
-from redis.exceptions import NoPermissionError, RedisError
+from config.redis_clients import get_cloud_redis, get_local_redis, safe_execute, safe_delete
+
+SEED_DIR = Path(__file__).resolve().parent.parent / 'data' / 'seed_data'
 
 
-# =============================================================================
-# PATH CONFIGURATION
-# =============================================================================
-BASE_DIR = Path(__file__).resolve().parent.parent
-SEED_DIR = BASE_DIR / 'data' / 'seed_data'
-
-
-# =============================================================================
-# REDIS CLOUD INGESTION (Global Cache, Blacklists & Active Sessions)
-# =============================================================================
 def seed_cloud(r_cloud):
-    print('Initiating dataset ingestion into REDIS CLOUD')
+    print('Seeding redis cloud')
 
-    # -------------------------------------------------------------------------
-    # 1.1 Stolen Passports List (SET + HASH)
-    # -------------------------------------------------------------------------
+    # Stolen passports
     stolen_file = SEED_DIR / 'cloud_stolen_passports.csv'
+
     if stolen_file.exists():
-        with open(stolen_file, mode='r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
+        with open(stolen_file, encoding='utf-8') as f:
             safe_delete(r_cloud, 'blacklist:stolen_passports')
             count = 0
             pipe = r_cloud.pipeline()
-            for row in reader:
+            for row in csv.DictReader(f):
                 passport = row['passport_number'].strip()
                 pipe.sadd('blacklist:stolen_passports', passport)
                 pipe.hset(f'stolen:{passport}', mapping=row)
                 count += 1
-            estado = safe_execute(pipe, "Cloud ingestion, stolen passports")
+            estado = safe_execute(pipe, 'Cloud: stolen passports')
             if estado:
-                print(f"Loaded {count} stolen passports into SET 'blacklist:stolen_passports' and HASHES 'stolen:*'")
+                print(f'{count} stolen passports')
 
-    # -------------------------------------------------------------------------
-    # Wanted People List (ZSET + HASH)
-    # -------------------------------------------------------------------------
+    # Wanted people
     wanted_file = SEED_DIR / 'cloud_wanted_persons.csv'
+
     if wanted_file.exists():
-        with open(wanted_file, mode='r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
+        with open(wanted_file, encoding='utf-8') as f:
             safe_delete(r_cloud, 'blacklist:wanted_persons')
-
             count = 0
             pipe = r_cloud.pipeline()
-            threat_scores = {
-                'Critical': 4,
-                'High': 3,
-                'Medium': 2,
-                'Low': 1
-            }
-            for row in reader:
+            threat_scores = {'Critical': 4, 'High': 3, 'Medium': 2, 'Low': 1}
+            for row in csv.DictReader(f):
                 passport = row['passport_number'].strip()
-                threat_level = row.get('threat_level', 'Low').strip()
-                score = threat_scores.get(threat_level, 1)
-
-                pipe.hset(f"wanted:{passport}", mapping=row)
-                pipe.zadd('blacklist:wanted_persons', {passport: score})
+                level = row.get('threat_level', 'Low').strip()
+                pipe.hset(f'wanted:{passport}', mapping=row)
+                pipe.zadd('blacklist:wanted_persons', {passport: threat_scores.get(level, 1)})
                 count += 1
-                
-            errn = safe_execute(pipe, "Cloud Ingestion: blacklist:wanted_persons ")
-            if errn:
-                print(f"Loaded {count} wanted individuals into ZSET 'blacklist:wanted_persons' and HASHES 'wanted:*'")
+            estado = safe_execute(pipe, 'Cloud: wanted persons')
+            if estado:
+                print(f'{count} wanted persons')
 
-    # -------------------------------------------------------------------------
-    # Visa Entry Policies (HASH per country)
-    # -------------------------------------------------------------------------
+    # Visa policies
     visa_file = SEED_DIR / 'cloud_visa_policies.csv'
+
     if visa_file.exists():
-        with open(visa_file, mode='r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
+        with open(visa_file, encoding='utf-8') as f:
             count = 0
             pipe = r_cloud.pipeline()
-            for row in reader:
-                country = row['country_code'].strip()
-                key = f'policy:visa:{country}'
+            for row in csv.DictReader(f):
+                key = 'policy:visa:' + row['country_code'].strip()
                 pipe.delete(key)
                 pipe.hset(key, mapping=row)
                 count += 1
-            errn = safe_execute(pipe, "Cloud Ingestion: visa policies ")
-            if errn:
-                print(f"Loaded {count} visa policy rules into HASHES 'policy:visa:*'")
+            estado = safe_execute(pipe, 'Cloud: visa policies')
+            if estado:
+                print(f'{count} visa policies')
 
-    # -------------------------------------------------------------------------
-    # Active Agent Sessions (HASH with TTL + Secondary Lookup Index)
-    # -------------------------------------------------------------------------
-    sessions_file = SEED_DIR / 'cloud_agent_sessions.csv'
-    if sessions_file.exists():
-        with open(sessions_file, mode='r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
+    # Aggent sessions with TTL in each cabin
+    a_sessions_file = SEED_DIR / 'cloud_agent_sessions.csv'
+
+    if a_sessions_file.exists():
+        with open(a_sessions_file, encoding='utf-8') as f:
             count = 0
             pipe = r_cloud.pipeline()
-
-            for row in reader:
-                badge_number = row['badge_number'].strip()
+            for row in csv.DictReader(f):
+                badge = row['badge_number'].strip()
                 ttl = int(row.pop('ttl_seconds', 28800))
-                session_key = f'session:agent:{badge_number}'
-                
-                pipe.delete(session_key)
-                pipe.hset(session_key, mapping=row)
-                pipe.expire(session_key, ttl)
+                key = f'session:agent:{badge}'
+                pipe.delete(key)
+                pipe.hset(key, mapping=row)
+                pipe.expire(key, ttl)
 
-                booth_id = row.get('booth_id')
-                if booth_id:
-                    cabin_key = f'cabin:active:{booth_id}'
-                    pipe.delete(cabin_key)
-                    pipe.set(cabin_key, badge_number, ex=ttl)
-
+                booth = row.get('booth_id')
+                if booth:
+                    pipe.delete(f'cabin:active:{booth}')
+                    pipe.set(f'cabin:active:{booth}', badge, ex=ttl)
                 count += 1
+            estado = safe_execute(pipe, 'Cloud: agent sessions')
+            if estado:
+                print(f'{count} agent sessions')
 
-            errn = safe_execute(pipe, "Cloud Ingestion: agent sessions ")
-            if errn:
-                print(f"Initialized {count} active officer sessions into HASHes 'session:agent:*' and secondary indexes 'cabin:active:*'")
 
-
-# =============================================================================
-# LOCAL DOCKER REDIS INGESTION (Real-Time Passenger Buffer / Queue)
-# =============================================================================
-def seed_local(r_local):
-    print('\nInitiating dataset ingestion into LOCAL REDIS (Docker) ---')
+def seed_redis(r_local):
+    print('Seeding local redis')
 
     queue_file = SEED_DIR / 'docker_passenger_queue.csv'
     if not queue_file.exists():
-        print('WARNING: Passenger queue dataset not found in data/seed_data/.')
+        print('No passenger csv found')
         return
 
-    with open(queue_file, mode='r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
+    with open(queue_file, encoding='utf-8') as f:
+        rows = list(csv.DictReader(f))
 
-        booths = {row['booth_id'].strip() for row in rows if 'booth_id' in row}
+    booths = {row['booth_id'].strip() for row in rows if 'booth_id' in row}
 
-        for booth in booths:
-            r_local.delete(f'queue:passengers:{booth}')
-            r_local.delete(f'queue:passengers:processing:{booth}')
+    for b in booths:
+        r_local.delete(f'queue:passengers:{b}')
+        r_local.delete(f'queue:passengers:processing:{b}')
+        
+    r_local.delete('queue:passengers:pending')
 
-        r_local.delete('queue:passengers:pending')
-
-        count = 0
-        pipe = r_local.pipeline()
-        for row in rows:
-            booth_id = row['booth_id'].strip()
-
-            if 'biometric_match_score' in row:
-                row['biometric_match_score'] = float(row['biometric_match_score'])
-            if 'nfc_valid' in row:
-                row['nfc_valid'] = row['nfc_valid'].lower() == 'true'
-
-            pipe.rpush(f'queue:passengers:{booth_id}', json.dumps(row))
-            count += 1
-
-        pipe.execute()
-        print(f"Pushed {count} passenger events across {len(booths)} booth queues ('queue:passengers:BOX-*')")
-
+    count = 0
+    pipe = r_local.pipeline()
+    for row in rows:
+        if 'biometric_match_score' in row:
+            row['biometric_match_score'] = float(row['biometric_match_score'])
+        if 'nfc_valid' in row:
+            row['nfc_valid'] = row['nfc_valid'].lower() == 'true'
+        pipe.rpush(f"queue:passengers:{row['booth_id'].strip()}", json.dumps(row))
+        count += 1
+    pipe.execute()
+    print(f'{count} passengers in {len(booths)} booths')
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Ingest seed datasets into Redis Cloud and/or Redis Local.")
-    parser.add_argument('--cloud', action='store_true', help="Seed Redis Cloud datasets")
-    parser.add_argument('--local', action='store_true', help="Seed Redis Local/Docker datasets")
-    
+    parser = argparse.ArgumentParser(description='Seed redis cloud and/or local')
+    parser.add_argument('--cloud', action='store_true')
+    parser.add_argument('--local', action='store_true')
     args = parser.parse_args()
 
-    run_cloud = args.cloud
-    run_local = args.local
-    if not run_cloud and not run_local:
-        run_cloud = True
-        run_local = True
+    # Without any args, cloud and redis are added by default
+    both = not args.cloud and not args.local
 
     try:
-        print('[INIT] Establishing connection to Redis instances...')
-        
-        if run_local:
-            r_loc = get_local_redis()
-            seed_local(r_loc)
-            
-        if run_cloud:
-            r_cld = get_cloud_redis()
-            seed_cloud(r_cld)
-
-        print('\nSeeding process completed successfully.')
-
+        if args.local or both:
+            seed_redis(get_local_redis())
+        if args.cloud or both:
+            seed_cloud(get_cloud_redis())
+        print('Done')
     except Exception as err:
-        print(f'\nERROR: Seeding process failed: {err}')
+        print(f'ERROR: {err}')
