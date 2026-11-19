@@ -18,12 +18,11 @@ def main():
                 time.sleep(2)
                 continue
             event, priority_score = result[0]
-            event_str = event.decode("utf-8") if isinstance(event, bytes) else event
-            passenger = json.loads(event_str)
+            passenger = json.loads(event)
 
 
             print("=" * 40)
-            print(f"   SECONDARY REVIEW — PRIORITY SCORE: {priority_score:.1f}")
+            print(f"   SECONDARY REVIEW — PRIORITY SCORE: {priority_score}")
             print("=" * 40)
             print(f" PASSENGER : {passenger['full_name']} ({passenger['passport_number']})")
             print(f" TICKET    : {passenger['ticket_number']} | Booth: {passenger['booth_id']}")
@@ -31,11 +30,11 @@ def main():
             print("=" * 40 + "\n")
             time.sleep(1)
             
-            now_utc = datetime.now(timezone.utc)
-            timestamp_str = now_utc.strftime("%Y-%m-%d %H:%M:%S")
-            date_prefix = now_utc.strftime("%Y-%m-%d")
+            now = datetime.now(timezone.utc)
+            timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
+            date = now.strftime("%Y-%m-%d")
 
-            if passenger['nfc_valid'] or float(passenger['biometric_match_score']) >= 0.6:
+            if priority_score <= 40.0 and passenger['biometric_match_score'] >= 0.55:
                 resolution = "RESOLVED_APPROVED"
                 action = "SECONDARY_CLEARANCE_GRANTED"
                 print(f"DECISION  : {resolution} — {action}")
@@ -45,22 +44,23 @@ def main():
                 print(f"DECISION  : {resolution} — {action}")
                 
                 alert_payload = {
-                    "timestamp": timestamp_str,
+                    "timestamp": timestamp,
                     "officer": "INSPECTOR-2ND-LINE",
                     "ticket_number": passenger['ticket_number'],
                     "passport_number": passenger['passport_number'],
                     "full_name": passenger['full_name'],
                     "status": resolution,
                     "reason": "Failed  secondary inspection",
-                    "action": action
+                    "action": action,
+                    "booth_id": passenger['booth_id']
                 }
                 r_cloud.publish("alerts:security_breach", json.dumps(alert_payload))
 
-            audit_key = f"log:{date_prefix}:{passenger['ticket_number']}"
+            audit_key = f"log:{date}:{passenger['ticket_number']}"
             r_local.hset(audit_key, mapping={
                 "secondary_resolution": resolution,
                 "secondary_action": action,
-                "secondary_timestamp": timestamp_str
+                "secondary_timestamp": timestamp
             })
 
             print("=" * 40 + "\n")

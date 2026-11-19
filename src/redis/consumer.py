@@ -1,36 +1,36 @@
-import json
 import os
+import json
 import sys
 import time
 from datetime import datetime, timezone
 from config.redis_clients import get_cloud_redis, get_local_redis, safe_publish
-from src.evaluator import evaluate_passenger
+from src.redis.evaluator import evaluate_passenger
 
-# Set target booth ID for this worker process (fallback to BOX-001)
+# Set booth ID for the process (BOX-001)
 BOOTH_ID = os.getenv("BOOTH_ID", sys.argv[1] if len(sys.argv) > 1 else "BOX-001")
-
-
 
 def start_consumer():
     # Initialize connection clients for Local Docker Redis and Redis Cloud
     r_local = get_local_redis()
     r_cloud = get_cloud_redis()
 
-    # Define dedicated streaming queues for this booth
+    # Define streaming queues for this booth
     pending_queue = f"queue:passengers:{BOOTH_ID}"
     processing_queue = f"queue:passengers:processing:{BOOTH_ID}"
     secondary_priority_queue = "queue:secondary_review:ranking"
-
-    print("=" * 50)
-    print(f"BORDERGATE: BOOTH ID: {BOOTH_ID}")
-    print("=" * 50)
 
     processed_count = 0
     accepted = 0
     denied = 0
     secondary = 0
+    err_count = 0
 
-    # Retrieve assigned officer session metadata from Redis Cloud
+    print("=" * 40)
+    print(f"BORDERGATE: BOOTH ID: {BOOTH_ID}")
+    print("=" * 40)
+
+
+    # Load assigned officer session metadata from Redis Cloud cache
     agent_badge = r_cloud.get(f"cabin:active:{BOOTH_ID}")
     if agent_badge:
         agent_info = r_cloud.hgetall(f"session:agent:{agent_badge}")
@@ -38,13 +38,10 @@ def start_consumer():
         agent_surname = agent_info.get("last_name")
         agent_rank = agent_info.get("rank")
         print(f"Officer on Duty: {agent_rank} {agent_name} {agent_surname} (#{agent_badge})")
-
-
-    print("=" * 50)
-    err_count = 0
+    print("=" * 40)
 
     while True:
-        # Atomically pop passenger event from pending queue and push to local processing queue
+        # One by one pop passenger event from pending queue and push to local processing queue
         event = r_local.blmove(
             pending_queue,
             processing_queue,
@@ -60,10 +57,10 @@ def start_consumer():
                 print(f"[{BOOTH_ID}] Queue empty. Closing booth")
                 break
             continue
-
+        # Once we get a passsenger, reset the error count
         err_count = 0
 
-        # Deserialize passenger  JSON
+        # Deserialize passenger
         passenger = json.loads(event)
         passport = passenger["passport_number"]
         full_name = passenger["full_name"]
@@ -96,6 +93,7 @@ def start_consumer():
                 "status": status,
                 "reason": reason,
                 "action": action}
+            # Here we check before publishin, wether the user has permissions or not to perform this action
             safe_publish(r_cloud, "alerts:security_breach", alert)
             denied +=1
         elif status == "SECONDARY_INSPECTION":
@@ -105,9 +103,6 @@ def start_consumer():
 
         else:
             print(f"[{status}] {reason}\n")
-
-
-
 
         # LOGS
         date = timestamp[:10] # Only YYYY/MM/DD
