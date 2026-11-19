@@ -38,13 +38,15 @@ BorderGate/
 │   ├── sentinel2.conf              # Node 2 local config (Git ignored)
 │   └── sentinel3.conf              # Node 3 local config (Git ignored)
 ├── src/
-│   ├── consumer.py                 # Booth worker process
-│   ├── evaluator.py                # Security rules evaluation engine
-│   ├── secondary_review.py         # Priority-ranked second-line inspection monitor
-│   ├── security_alerts.py          # Real-time Pub/Sub security breach listener
-│   ├── seed_redis.py               # Redis Cloud & Local data loader
-│   ├── seed_cassandra.py           # Cassandra loader (denormalized writes to 5 tables)
-│   ├── query_cassandra.py          # Cassandra queries Q1-Q6 with execution time (ms)
+│   ├── cassandra/
+│   │   ├── seed_cassandra.py       # Cassandra loader (denormalized writes to 5 tables)
+│   │   └── query_cassandra.py      # Cassandra queries Q1-Q6 with execution time (ms)
+│   ├── redis/
+│   │   ├── consumer.py             # Booth worker process
+│   │   ├── evaluator.py            # Security rules evaluation engine
+│   │   ├── secondary_review.py     # Priority-ranked second-line inspection monitor
+│   │   ├── security_alerts.py      # Real-time Pub/Sub security breach listener
+│   │   └── seed_redis.py           # Redis Cloud & Local data loader
 │   └── test_connect.py             # Connection validation script
 ├── .env                            # Local credentials & ports (Git ignored)
 ├── .env.example                    # Environment template without credentials
