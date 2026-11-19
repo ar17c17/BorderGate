@@ -34,7 +34,7 @@ def main():
             timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
             date = now.strftime("%Y-%m-%d")
 
-            if passenger['nfc_valid'] and float(passenger['biometric_match_score']) >= 0.6:
+            if priority_score <= 40.0 and passenger['biometric_match_score'] >= 0.55:
                 resolution = "RESOLVED_APPROVED"
                 action = "SECONDARY_CLEARANCE_GRANTED"
                 print(f"DECISION  : {resolution} — {action}")
@@ -51,7 +51,8 @@ def main():
                     "full_name": passenger['full_name'],
                     "status": resolution,
                     "reason": "Failed  secondary inspection",
-                    "action": action
+                    "action": action,
+                    "booth_id": passenger['booth_id']
                 }
                 r_cloud.publish("alerts:security_breach", json.dumps(alert_payload))
 
