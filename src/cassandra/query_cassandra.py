@@ -1,6 +1,7 @@
 # -----------------------------------------------------------------------------
 # Module: query_cassandra.py
 # Purpose: Executes defined queries Q1-Q6 against border_crossing in Cassandra and benchmarks latency.
+# Inputs: Optional query IDs (Q1-Q6; defaults to all) and -v (verbose) (true by default).
 # -----------------------------------------------------------------------------
 import time
 import sys
@@ -63,7 +64,6 @@ QUERIES = [
 ]
 
 # Function to run the queries n times and save the time of execution.
-# Default n = 5
 def run_query(session, statement, values, n=5):
     times = []
     for _ in range(n):

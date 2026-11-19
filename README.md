@@ -541,16 +541,14 @@ CQL version (sample values):
 docker exec -i bordergate-cassandra cqlsh < cql/queries.cql
 ```
 
-The query script accepts optional arguments. Without arguments it runs all queries (Q1–Q6), prints the first rows of each result and then the timing table. Passing query IDs runs only those queries and prints just the timing table; add `-v` (or `--verbose`) to also print their rows. Each query is executed 50 times to report the average and minimum time in ms.
+The query script accepts optional arguments. Without arguments it runs all queries (Q1–Q6), prints the first rows of each result and then the timing table ; add `-v` (or `--verbose`) to also print the query outputs. Each query is executed 50 times to report the average and minimum time in ms.
 
 ```bash
 uv run python -m src.cassandra.query_cassandra            # all queries
 uv run python -m src.cassandra.query_cassandra Q1 Q3      # selected queries
-uv run python -m src.cassandra.query_cassandra Q2 -v      # selected queries with their rows
+uv run python -m src.cassandra.query_cassandra Q2 -v      # selected queries with their output
 ```
-
-*Expected Output:*
-
+Expected Output:
 ```text
 Q     Rows   Avg (ms)   Min (ms)   Description
 Q1      43       1.51       0.92   Crossing history of a passport (most recent first).
