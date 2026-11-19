@@ -17,12 +17,12 @@ This repository contains the implementation and data infrastructure for **Border
 ```text
 BorderGate/
 ├── config/
-│   ├── redis_clients.py            # Local (Docker) and Cloud Redis client initializers
+│   └── redis_clients.py            # Local (Docker) and Cloud Redis client initializers
 │   └── cassandra_client.py         # Cassandra session (LOCAL_QUORUM, DC-aware + token-aware routing)
 ├── cql/
 │   ├── schema.cql                  # Keyspace (NetworkTopologyStrategy) and 5 query-driven tables
 │   ├── inserts.cql                 # Sample CQL inserts for every table (denormalization example)
-│   └── queries.cql                 # CQL queries Q1-Q6 with sample values
+│   └── queries.cql                 # CQL queries Q1-Q6 with sample values   
 ├── data/
 │   └── seed_data/                  # Initial synthetic dataset CSV files
 │       ├── cassandra_border_crossings.csv
@@ -32,7 +32,7 @@ BorderGate/
 │       ├── cloud_wanted_persons.csv
 │       └── docker_passenger_queue.csv
 ├── docker/
-│   ├── docker_compose.yml          # Local Redis cluster, Sentinel topology and Cassandra node
+│   ├── docker_compose.yml          # Local Redis cluster & Sentinel topology
 │   ├── sentinel.conf.example       # Static base template for Sentinel configuration
 │   ├── sentinel1.conf              # Node 1 local config (Git ignored)
 │   ├── sentinel2.conf              # Node 2 local config (Git ignored)
@@ -108,13 +108,13 @@ cp docker/sentinel.conf.example docker/sentinel3.conf
 
 ---
 
-### 4. Start the Local Redis Cluster (Docker)
+### 4. Start the Local Cluster (Docker)
+The local infrastructure consists of a high-availability Redis cluster and an Apache Cassandra node defined in `docker/docker_compose.yml`, composed of:
 
-The local infrastructure is a high-availability Redis cluster defined in `docker/docker_compose.yml`, composed of:
-
-- **1 Primary Master node** (`redis-local`, default port `6379`)
-- **2 Replicas** (`redis-replica-1` on port `6380`, `redis-replica-2` on port `6381`)
-- **3 Sentinel instances** (`sentinel-1`, `sentinel-2`, `sentinel-3` on port `26379`), providing distributed consensus with a quorum of 2 (`2/3`). Every Sentinel monitors all 3 Redis nodes.
+- **1 Primary Master node** (`redis-local` / `bordergate-redis-local`, default port `6379`) with AOF persistence (`redis_local_data`).
+- **2 Replicas** (`redis-replica-1` on port `6380`, `redis-replica-2` on port `6381`).
+- **3 Sentinel instances** (`sentinel-1`, `sentinel-2`, `sentinel-3` on port `26379`) on `redisnet`, providing distributed consensus with a quorum of 2 (`2/3`). Every Sentinel monitors all 3 Redis nodes.
+- **1 Apache Cassandra 5.0 node** (`cassandra` / `bordergate-cassandra`, CQL native port `9042`) on `bordergate-net`, configured as the historical archive (`Cluster: BorderGate`, `DC: Mad_Barajas`, `Rack: rack1`, `16 vnodes`, `512M` JVM heap) with persistent storage (`bordergate-cassandra-data`).
 
 ```text
     ╔═════════════════════╗            ╔═════════════════════╗            ╔═════════════════════╗
@@ -134,6 +134,17 @@ The local infrastructure is a high-availability Redis cluster defined in `docker
 ║    (Read-Only · slave)     ║     ║    (Read / Write · AOF)    ║     ║    (Read-Only · slave)     ║
 ╚════════════════════════════╝     ╚════════════════════════════╝     ╚════════════════════════════╝
 ```
+CASSANDRA
+```text
+────────────────────────────────────────
+  APACHE CASSANDRA (Docker, 1 node)
+   Keyspace: border_crossing
+   DC: Mad_Barajas · RF = 1
+   Consistency: LOCAL_QUORUM
+   • 5 query-driven tables
+   • Q1–Q6 single-partition reads
+```
+
 
 Launch the cluster:
 
@@ -142,15 +153,13 @@ docker compose -f docker/docker_compose.yml up -d
 ```
 
 ---
-
 ### 5. Verify the Cluster
 
-Check that all 6 containers (`bordergate-redis-local`, `bordergate-redis-replica-1`, `bordergate-redis-replica-2`, `bordergate-sentinel-1`, `bordergate-sentinel-2`, `bordergate-sentinel-3`) report status `Up`:
+Check that all 7 containers (`bordergate-redis-local`, `bordergate-redis-replica-1`, `bordergate-redis-replica-2`, `bordergate-sentinel-1`, `bordergate-sentinel-2`, `bordergate-sentinel-3`, and `bordergate-cassandra`) report status `Up`:
 
 ```bash
 docker compose -f docker/docker_compose.yml ps
 ```
-
 Check that the master responds:
 
 ```bash
@@ -166,11 +175,22 @@ docker exec bordergate-sentinel-1 redis-cli -p 26379 sentinel master bordergate-
 
 *Expected values:* `flags: "master"`, `ip: "redis-local"`, `num-slaves: "2"`, `num-other-sentinels: "2"`, `quorum: "2"`.
 
+Check that the Apache Cassandra node is Up/Normal (`UN`) in datacenter `Mad_Barajas` (allow ~30–45 seconds after startup for JVM initialization):
+
+```bash
+docker exec bordergate-cassandra nodetool status
+```
+*Expected output:* `Datacenter: Mad_Barajas` with node status `UN` (`Up` / `Normal`) and `16` tokens.
+
+Load the schema
+```bash
+docker exec -i bordergate-cassandra cqlsh < cql/schema.cql
+```
 ---
 
 ### 6. Test Connections
 
-Run the connectivity test script to verify communication with both Local and Cloud Redis instances:
+Run the connectivity test script to verify communication with both Redis (Local & Cloud) and Cassandra instances:
 
 ```bash
 uv run python -m src.test_connect
@@ -180,16 +200,16 @@ uv run python -m src.test_connect
 
 ### 7. Seed the Database
 
-Upload global control data (stolen passports, wanted individuals, visa policies, active officer sessions) to Redis Cloud and populate initial passenger queues in the local Redis master. The two replicas receive the local data automatically through replication.
+Upload  control data (stolen passports, wanted individuals, visa policies, active officer sessions) to Redis Cloud and load initial passenger queues in the local Redis master. The two replicas receive the local data automatically through replication.
 
 ```bash
-uv run python -m src.seed_redis
+uv run python -m src.redis.seed_redis
 ```
 
 We can also select wich database we want to seed:
 ```bash
-uv run python -m src.seed_redis --local
-uv run python -m src.seed_redis --cloud
+uv run python -m src.redis.seed_redis --local
+uv run python -m src.redis.seed_redis --cloud
 
 ```
 Allows rapid local queue resets during testing without re-uploading global cloud datasets. 
@@ -199,9 +219,9 @@ WARNING
 Processing passengers consumes and clears the local booth queues. To re-run the 
 simulation or execute consecutive test batches, you MUST re-seed the local Redis 
 instance using the `--local` flag:
-
+```bash
   uv run python -m src.seed_redis --local
-
+```
 
 ---
 
@@ -212,50 +232,51 @@ instance using the `--local` flag:
 Start the security breach subscriber to catch high-priority arrest alerts broadcasted from any booth via Pub/Sub:
 
 ```bash
-uv run python -m src.security_alerts
+uv run python -m src.redis.security_alerts
 ```
 
 ---
----
+### Step 2: Run Booth Workers
 
-### Step 2: Run E-Gate Booth Workers
+Start processing passengers at individual border control booths. You can pass 
+BOOTH_ID as a CLI argument or environment variable:
 
-Start processing passengers at individual border control booths. You can pass `BOOTH_ID` (`BOX-001` to `BOX-012`) as a CLI argument or an environment variable.
-
-#### 1. Running a Single Booth Worker
-
+1. Running a single booth worker
 ```bash
-# Via CLI argument (e.g., BOX-001)
-uv run python -m src.consumer BOX-001
+# Via argument (BOX-001 to BOX-012)
+uv run python -m src.redis.consumer BOX-001
 
 # Or via environment variable (e.g., BOX-002)
-BOOTH_ID=BOX-002 uv run python -m src.consumer
+BOOTH_ID=BOX-002 uv run python -m src.redis.consumer
 ```
+2. Spawn all 12 booths at the same time
 
-#### 2. Spawning All 12 Booths in Parallel
-
-To spawn workers for all 12 booths simultaneously as background processes:
-
+To spawn workers for all 12 booths at the same time in background processes:
 ```bash
-for i in $(seq -f "%03g" 1 12); do BOOTH_ID="BOX-$i" uv run python -m src.consumer & done
+for i in $(seq -f "%03g" 1 12); do BOOTH_ID="BOX-$i" uv run python -m src.redis.consumer & done
 ```
+**Concurrency output & interference note**:
 
-> **Note on Concurrency & Output Interference:**  
-> Running all 12 processes simultaneously in the background causes overlapping terminal output. Because each independent Python process writes concurrently to the same `stdout` stream without I/O locking, logs, security alerts, and completion summaries interleave unpredictably on screen.
+Executing the 12 processes simultaneously in background causes 
+broken visual formatting in the terminal.
+
+Because all 12 independent Python processes write concurrently to the same 
+standard output stream (stdout) without I/O locking, prints, security 
+alerts, and completion summaries coincide in time and unpredictably appear
+on screen without a logical order.
+---
 
 ### Step 3: Run Secondary Inspection Review Desk
 
 Start the second-line inspection workspace. Launching this monitor after or during booth processing allows it to consume flagged passengers from the priority-sorted queue (`ZSET`), processing candidates by highest cumulative risk score rather than order of arrival:
 
 ```bash
-uv run python -m src.secondary_review
+uv run python -m src.redis.secondary_review
 ```
 
 ---
 
-## Architecture Overview
-
-BorderGate relies on a hybrid data topology to maximize throughput, enforce strict data sovereignty/privacy constraints, and remain within Redis Cloud free-tier memory allocations:
+## Architecture Overview after seeding
 
 ```text
                   ┌─────────────────────────────────────────────────────────┐
@@ -280,26 +301,6 @@ BorderGate relies on a hybrid data topology to maximize throughput, enforce stri
 - Real-Time Security Breach Alerts
     └─ Pub/Sub: alerts:security_breach
 ```
-
----
-
-### Key & Data Structure Specifications
-
-| Scope | Key Pattern | Type | Operations | Purpose / Description |
-|---|---|---|---|---|
-| **Cloud** | `blacklist:stolen_passports` | `SET` | `SISMEMBER`, `SADD` | Global lookup for stolen passport numbers. |
-| **Cloud** | `stolen:<passport_number>` | `HASH` | `HGETALL`, `HSET` | Complete incident report details for stolen passports. |
-| **Cloud** | `blacklist:wanted_persons` | `ZSET` | `ZSCORE`, `ZADD` | Fugitive blacklist sorted by threat score (`1` Low to `4` Critical). |
-| **Cloud** | `wanted:<passport_number>` | `HASH` | `HGETALL`, `HSET` | Active arrest warrant details and alert instructions. |
-| **Cloud** | `policy:visa:<country_code>` | `HASH` | `HGETALL`, `HSET` | Country-specific visa entry rules (`visa_required: True/False`). |
-| **Cloud** | `session:agent:<badge_number>` | `HASH` | `HGETALL`, `EXPIRE` | Active police officer credentials and session metrics. |
-| **Cloud** | `cabin:active:<booth_id>` | `STRING` | `GET`, `SET` | Maps booth ID to officer badge number. |
-| **Cloud** | `alerts:security_breach` | `Pub/Sub` | `PUBLISH`, `SUBSCRIBE` | Real-time alert broadcast channel for high-level breaches (SUB). |
-| **Local** | `queue:passengers:<booth_id>` | `LIST` | `RPUSH`, `BLMOVE` | Per-booth incoming passenger buffer (FIFO queue). |
-| **Local** | `queue:passengers:processing:<booth_id>` | `LIST` | `BLMOVE`, `LREM` | Atomic in-flight processing list for resilience against crashes. |
-| **Local** | `queue:secondary_review:ranking` | `ZSET` | `ZADD`, `ZPOPMAX` | Priority queue ordered by dynamic risk score (`(50 if not nfc_valid) + (100 - bio_score * 100)`). |
-| **Local** | `log:<YYYY-MM-DD>:<ticket_number>` | `HASH` | `HSET`, `EXPIRE` | Audit trail per passenger check with a 7-day TTL expiration. |
-
 ---
 
 ## Replication & High Availability Tests
@@ -436,7 +437,7 @@ To perform a complete manual role switch without Sentinel intervention:
 ---
 ### 5. Reset Topology to Baseline State
 
-To return the deployment to its initial architecture where `bordergate-redis-local` acts as the primary master we could do it manually as previously shown or by just restartind the docker container:
+To return the deployment to its initial architecture where `bordergate-redis-local` acts as the primary master we could do it manually as previously shown or by just restarting the docker container:
 
 ```bash
 docker compose -f docker/docker_compose.yml down
@@ -457,74 +458,10 @@ docker exec -it bordergate-sentinel-1 redis-cli -p 26379 sentinel get-master-add
 
 ## Cassandra — Historical Border Crossing Archive
 
-Redis keeps the **live** state of the border (queues, sessions, alerts) and its audit logs expire after 7 days (`log:<date>:<ticket>`, TTL 604800 s). Cassandra is the **permanent historical archive**: every crossing is stored and can be queried by passport, booth/day, alerts, secondary inspections and daily statistics.
+Redis keeps the **live** state of the border (queues, sessions, alerts) and its audit logs expire after 7 days (`log:<date>:<ticket>`, TTL 604800 s). Cassandra is the **permanent historical archive**: every crossing is stored (synthetical) and can be queried by passport, booth/day, alerts, secondary inspections and daily statistics.
 
-                     ┌──────────────────────────────────────────────┐
-                     │            BORDERGATE DATA LIFECYCLE         │
-                     └──────────────────────────────────────────────┘
 
-   LIVE (seconds → 7 days)                         HISTORY (permanent)
- ───────────────────────────────                ──────────────────────────────────
-  REDIS LOCAL (Docker)                            APACHE CASSANDRA (Docker, 1 node)
-   • Passenger queues (LIST)                       Keyspace: border_crossing
-   • Secondary ranking (ZSET)          ═════►      DC: Mad_Barajas · RF = 1
-   • Audit logs (HASH, TTL 7d)                     Consistency: LOCAL_QUORUM
-  REDIS CLOUD                                      • 5 query-driven tables
-   • Blacklists, visa policies                     • Q1–Q6 single-partition reads
-   • Pub/Sub security alerts (ephemeral)
-
-### 1. Deploy a Single Cassandra Node (Docker)
-
-```bash
-docker pull cassandra:5.0
-docker network create bordergate-net
-docker volume create bordergate-cassandra-data
-
-docker run -d --restart unless-stopped \
-  --name bordergate-cassandra --hostname bordergate-cassandra \
-  --network bordergate-net -p 9042:9042 \
-  -v bordergate-cassandra-data:/var/lib/cassandra \
-  -e CASSANDRA_CLUSTER_NAME=BorderGate \
-  -e CASSANDRA_DC=Mad_Barajas \
-  -e CASSANDRA_RACK=rack1 \
-  -e CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch \
-  -e CASSANDRA_NUM_TOKENS=16 \
-  -e MAX_HEAP_SIZE=512M \
-  -e MAX_DIRECT_MEMORY_SIZE=256M \
-  cassandra:5.0
-```
-
-| Option | Purpose |
-|---|---|
-| `-p 9042:9042` | CQL native protocol port (cqlsh and the Python driver) |
-| `-v bordergate-cassandra-data:/var/lib/cassandra` | Persistent volume: data survives container removal |
-| `CASSANDRA_DC` / `CASSANDRA_RACK` | Datacenter and rack of the node, used by `NetworkTopologyStrategy` |
-| `GossipingPropertyFileSnitch` | Snitch that applies the DC/rack above (production-recommended) |
-| `CASSANDRA_NUM_TOKENS=16` | Virtual nodes (token ranges) owned by the node |
-| `MAX_HEAP_SIZE` / `MAX_DIRECT_MEMORY_SIZE` | JVM memory limits to fit in Docker Desktop |
-
-Startup takes 30–90 s. Wait for the node to accept CQL connections:
-
-```bash
-docker logs -f bordergate-cassandra
-# Wait for: Starting listening for CQL clients on /0.0.0.0:9042
-```
-
-> **Note:** the cluster name and datacenter are stored in the data volume on first start. To change them, remove both the container and the volume (`docker rm -f bordergate-cassandra && docker volume rm bordergate-cassandra-data`).
-
----
-
-### 2. Verify the Node
-
-```bash
-docker exec -it bordergate-cassandra nodetool status
-```
-
-*Expected:* datacenter `Mad_Barajas`, one node with status `UN` (Up/Normal), `Tokens: 16`, `Owns: 100.0%`, rack `rack1`.
-
----
-
-### 3. Create the Schema
+### 1. Create the Schema
 
 ```bash
 docker exec -i bordergate-cassandra cqlsh < cql/schema.cql
@@ -535,7 +472,7 @@ docker exec -i bordergate-cassandra cqlsh < cql/schema.cql
 Verify:
 
 ```bash
-docker exec -it bordergate-cassandra cqlsh -e "DESCRIBE TABLES;"
+docker exec -it bordergate-cassandra cqlsh -k border_crossing -e "DESCRIBE TABLES;"
 docker exec -it bordergate-cassandra cqlsh -e "SELECT keyspace_name, durable_writes, replication FROM system_schema.keyspaces WHERE keyspace_name = 'border_crossing';"
 ```
 
@@ -543,14 +480,14 @@ docker exec -it bordergate-cassandra cqlsh -e "SELECT keyspace_name, durable_wri
 
 ---
 
-### 4. Load the Dataset
+### 2. Load the Dataset
 
-`data/seed_data/cassandra_border_crossings.csv` contains 5,147 synthetic crossings (12 Oct – 10 Nov 2026) built from the same catalogs used by Redis (booths, officers, flights, stolen/wanted passports, visa policies). Each crossing is written to every table that needs it (denormalization):
+`data/seed_data/cassandra_border_crossings.csv` contains 5,147 synthetic crossings (12 Oct – 10 Nov 2026) built from similar data used by Redis (booths, officers, stolen/wanted passports, visa policies). Each crossing is written to every table that needs it:
 
             cassandra_border_crossings.csv  (1 row = 1 crossing)
                                 │
                                 ▼
-                   src/seed_cassandra.py (prepared statements)
+                   src/cassandra/seed_cassandra.py (prepared statements)
                                 │
       ┌─────────────────┬───────┴──────────┬──────────────────┬───────────────────────┐
       │ always          │ always           │ always (+1)      │ if DENIED_*           │ if SECONDARY_INSPECTION
@@ -560,7 +497,7 @@ crossings_by_      crossings_by_      crossing_stats_     alerts_by_day      sec
    (Q1)              (Q2, Q3)          (Q6, counter)
 
 ```bash
-uv run python -m src.seed_cassandra
+uv run python -m src.cassandra.seed_cassandra
 ```
 
 *Expected Output:*
@@ -571,7 +508,7 @@ uv run python -m src.seed_cassandra
   alerts: 287 writes
   secondary: 338 writes
   stats: 5147 writes
-Done in 8.43 s
+Time: 8.53 s
 ```
 
 Load design:
@@ -588,7 +525,7 @@ docker exec -i bordergate-cassandra cqlsh < cql/inserts.cql
 
 ---
 
-### 5. Run the Queries
+### 3. Run the Queries
 
 CQL version (sample values):
 
@@ -596,14 +533,14 @@ CQL version (sample values):
 docker exec -i bordergate-cassandra cqlsh < cql/queries.cql
 ```
 
-Python version with execution times (each query runs 5 times; average and minimum in ms):
+The query script accepts optional arguments. Without arguments it runs all queries (Q1–Q6), prints the first rows of each result and then the timing table ; add `-v` (or `--verbose`) to also print the query outputs. Each query is executed 50 times to report the average and minimum time in ms.
 
 ```bash
-uv run python -m src.query_cassandra
+uv run python -m src.cassandra.query_cassandra            # all queries
+uv run python -m src.cassandra.query_cassandra Q1 Q3      # selected queries
+uv run python -m src.cassandra.query_cassandra Q2 -v      # selected queries with their output
 ```
-
-*Expected Output (times vary per machine):*
-
+Expected Output:
 ```text
 Q     Rows   Avg (ms)   Min (ms)   Description
 Q1      43       1.51       0.92   Crossing history of a passport (most recent first).
@@ -614,7 +551,7 @@ Q5       5       1.32       0.81   Top-N most urgent secondary inspections on a 
 Q6      54       1.74       1.20   Number of crossings by status and nationality on a given day.
 ```
 
-Every query reads a **single partition**, located directly from the hash of its partition key: no joins, no full scans, no sorting at query time.
+Every query reads a **single partition**, located directly from the hash of its partition key, no joins, no full scans, no sorting at query time.
 
 ---
 
@@ -645,7 +582,7 @@ Every query reads a **single partition**, located directly from the hash of its 
 
 | Setting | Value | Reason |
 |---|---|---|
-| Replication strategy | `NetworkTopologyStrategy` | Consistent with the configured topology (GPFS + `Mad_Barajas`), production-recommended, allows adding datacenters with `ALTER KEYSPACE` |
+| Replication strategy | `NetworkTopologyStrategy` | Consistent with the configured topology, production-recommended, allows adding datacenters with `ALTER KEYSPACE` |
 | Replication factor | `Mad_Barajas: 1` | Single node: more replicas than nodes is not possible. No fault tolerance (accepted lab limitation) |
 | Consistency level | `LOCAL_QUORUM` (client side) | With RF=1 it equals 1 replica (R + W = 2 > RF). If RF grows to 3 it becomes 2 + 2 > 3 with no code changes, and never waits for remote datacenters |
 
@@ -686,6 +623,12 @@ docker exec -it bordergate-cassandra nodetool getendpoints border_crossing cross
 
 ### 2. Quorum Requirement (RF > available replicas)
 
+Open the interactive CQL shell:
+
+```bash
+docker exec -it bordergate-cassandra cqlsh
+```
+
 ```sql
 CREATE KEYSPACE quorum_test WITH replication = {'class': 'NetworkTopologyStrategy', 'Mad_Barajas': 3};
 CREATE TABLE quorum_test.t (id int PRIMARY KEY, v text);
@@ -707,7 +650,7 @@ DROP KEYSPACE quorum_test;
 
 ```bash
 docker stop bordergate-cassandra
-uv run python -m src.query_cassandra
+uv run python -m src.cassandra.query_cassandra
 ```
 
 *Expected Output:*
@@ -726,8 +669,8 @@ Once the node accepts CQL connections again, all data is still available (persis
 
 ### 4. Query-Driven Model: Non-Key Filtering Is Rejected
 
-```sql
-SELECT crossing_ts, full_name, status FROM border_crossing.alerts_by_day WHERE nationality = 'NGA';
+```bash
+docker exec -it bordergate-cassandra cqlsh -e "SELECT crossing_ts, full_name, status FROM border_crossing.alerts_by_day WHERE nationality = 'NGA';"
 ```
 
 *Expected Result:* `InvalidRequest ... use ALLOW FILTERING`. Filtering by a non-key column would scan every partition; the correct solution in Cassandra is a new table designed for that query, not `ALLOW FILTERING`.
