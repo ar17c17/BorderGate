@@ -86,9 +86,33 @@ services:
     networks:
       - redisnet
 
+  # 7. APACHE CASSANDRA (Historical Archive)
+  cassandra:
+    image: cassandra:5.0
+    container_name: bordergate-cassandra
+    hostname: bordergate-cassandra
+    restart: unless-stopped
+    ports:
+      - "9042:9042"
+    volumes:
+      - bordergate-cassandra-data:/var/lib/cassandra
+    environment:
+      CASSANDRA_CLUSTER_NAME: BorderGate
+      CASSANDRA_DC: Mad_Barajas
+      CASSANDRA_RACK: rack1
+      CASSANDRA_ENDPOINT_SNITCH: GossipingPropertyFileSnitch
+      CASSANDRA_NUM_TOKENS: 16
+      MAX_HEAP_SIZE: 512M
+      MAX_DIRECT_MEMORY_SIZE: 256M
+    networks:
+      - bordergate-net
+
 networks:
   redisnet:
+    driver: bridge
+  bordergate-net:
     driver: bridge
 
 volumes:
   redis_local_data:
+  bordergate-cassandra-data:
