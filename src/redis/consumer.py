@@ -10,7 +10,7 @@ import sys
 import time
 from datetime import datetime, timezone
 from config.redis_clients import get_cloud_redis, get_local_redis
-from  safe_executes import safe_publish
+from  .safe_executes import safe_publish
 from src.redis.evaluator import evaluate_passenger
 
 # Set booth ID for the process (BOX-001)

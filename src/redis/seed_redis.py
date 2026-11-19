@@ -8,7 +8,7 @@ import csv
 import json
 from pathlib import Path
 from config.redis_clients import get_cloud_redis, get_local_redis
-from safe_executes import safe_execute, safe_delete
+from .safe_executes import safe_execute, safe_delete
 
 SEED_DIR = Path(__file__).resolve().parent.parent.parent / 'data' / 'seed_data'
 
