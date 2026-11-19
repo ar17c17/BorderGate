@@ -583,7 +583,7 @@ uv run python -m src.seed_cassandra
   alerts: 287 writes
   secondary: 338 writes
   stats: 5147 writes
-Done in 8.43 s
+Done in 10.41 s
 ```
 
 Load design:
@@ -614,7 +614,15 @@ Python version with execution times (each query runs 5 times; average and minimu
 uv run python -m src.query_cassandra
 ```
 
-*Expected Output (times vary per machine):*
+The query script accepts optional arguments. Without arguments it runs all queries (Q1–Q6), prints the first rows of each result and then the timing table. Passing query IDs runs only those queries and prints just the timing table; add `-v` (or `--verbose`) to also print their rows. Each query is executed 50 times to report the average and minimum time in ms.
+
+```bash
+uv run python -m src.query_cassandra            # all queries
+uv run python -m src.query_cassandra Q1 Q3      # selected queries
+uv run python -m src.query_cassandra Q2 -v      # selected queries with their rows
+```
+
+*Expected Output:*
 
 ```text
 Q     Rows   Avg (ms)   Min (ms)   Description
@@ -626,7 +634,7 @@ Q5       5       1.32       0.81   Top-N most urgent secondary inspections on a 
 Q6      54       1.74       1.20   Number of crossings by status and nationality on a given day.
 ```
 
-Every query reads a **single partition**, located directly from the hash of its partition key: no joins, no full scans, no sorting at query time.
+Every query reads a **single partition**, located directly from the hash of its partition key, no joins, no full scans, no sorting at query time.
 
 ---
 
@@ -698,6 +706,12 @@ docker exec -it bordergate-cassandra nodetool getendpoints border_crossing cross
 
 ### 2. Quorum Requirement (RF > available replicas)
 
+Open the interactive CQL shell:
+
+```bash
+docker exec -it bordergate-cassandra cqlsh
+```
+
 ```sql
 CREATE KEYSPACE quorum_test WITH replication = {'class': 'NetworkTopologyStrategy', 'Mad_Barajas': 3};
 CREATE TABLE quorum_test.t (id int PRIMARY KEY, v text);
@@ -738,8 +752,8 @@ Once the node accepts CQL connections again, all data is still available (persis
 
 ### 4. Query-Driven Model: Non-Key Filtering Is Rejected
 
-```sql
-SELECT crossing_ts, full_name, status FROM border_crossing.alerts_by_day WHERE nationality = 'NGA';
+```bash
+docker exec -it bordergate-cassandra cqlsh -e "SELECT crossing_ts, full_name, status FROM border_crossing.alerts_by_day WHERE nationality = 'NGA';"
 ```
 
 *Expected Result:* `InvalidRequest ... use ALLOW FILTERING`. Filtering by a non-key column would scan every partition; the correct solution in Cassandra is a new table designed for that query, not `ALLOW FILTERING`.
