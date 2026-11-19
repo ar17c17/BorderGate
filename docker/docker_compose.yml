@@ -116,3 +116,4 @@ networks:
 volumes:
   redis_local_data:
   bordergate-cassandra-data:
+    name: bordergate-cassandra-data

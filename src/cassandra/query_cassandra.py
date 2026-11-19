@@ -59,10 +59,12 @@ QUERIES = [
 ]
 
 # Function to run the queries n times and save the time of execution.
+# Default n = 5
 def run_query(session, statement, values, n=5):
     times = []
     for _ in range(n):
         start = time.perf_counter()
+        # To measure the time for all the execution we store the rows in list format
         rows = list(session.execute(statement, values))
         times.append((time.perf_counter() - start) * 1000)
     return rows, times
@@ -81,28 +83,25 @@ def format_value(value):
 
 # Print the rows of a query as an aligned table.
 def print_rows(q, rows, max_rows=10):
-    print("=" * 80)
     print(f" {q['id']} | {q['description']}")
-    print("=" * 80)
-
     if not rows:
-        print("  (no rows)\n")
+        print("(no rows)\n")
         return
 
     columns = rows[0]._fields
     data = [[format_value(v) for v in row] for row in rows[:max_rows]]
     widths = [max(len(col), *(len(r[i]) for r in data)) for i, col in enumerate(columns)]
+    line = "+" + "+".join("-" * (w + 2) for w in widths) + "+"
+    print(line)
+    print("| " + " | ".join(col.ljust(w) for col, w in zip(columns, widths)) + " |")
+    print(line)
 
-    line = "  +" + "+".join("-" * (w + 2) for w in widths) + "+"
-    print(line)
-    print("  | " + " | ".join(col.ljust(w) for col, w in zip(columns, widths)) + " |")
-    print(line)
     for r in data:
-        print("  | " + " | ".join(v.ljust(w) for v, w in zip(r, widths)) + " |")
+        print("| " + " | ".join(v.ljust(w) for v, w in zip(r, widths)) + " |")
     print(line)
 
     if len(rows) > max_rows:
-        print(f"  ... {len(rows) - max_rows} more rows")
+        print(f"... {len(rows) - max_rows} more rows")
     print()
 
 # Start the program.
@@ -122,9 +121,10 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        # Prepare and run each query n times (n = 50) and print the result.
         for q in queries:
             statement = session.prepare(q['cql'])
+            # We execute the query 50 times to get the mean and the minimum and reduce the noise of the 
+            # execution because the first is slower than the others.
             rows, times = run_query(session, statement, q['values'], 50)
             result.append((q, rows, times))
 

@@ -11,25 +11,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 SEED_DIR = BASE_DIR / 'data' / 'seed_data'
 CSV_PATH = SEED_DIR / 'cassandra_border_crossings.csv'
 
-# Function that check if there is no value.
-def optional(value, convert):
-    if value == "":
-        return UNSET_VALUE
-    return convert(value)
-
-# Function so asign the data type
-def parse_row(row):
+# Function to assign the data type
+def assign_datatype_row(row):
+    # We assign UNSET_VALUE in columns without value to avoid creating a tombstone in Cassandra
     return {
         "crossing_id": uuid.UUID(row['crossing_id']),
         "crossing_ts": datetime.strptime(row['crossing_ts'], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc),
         "crossing_date": date.fromisoformat(row['crossing_date']),
         "biometric_match_score": float(row['biometric_match_score']),
         "nfc_valid": row['nfc_valid'] == "True",
-        "threat_level": optional(row['threat_level'], str),
-        "secondary_priority": optional(row['secondary_priority'], float),
-        "secondary_resolution": optional(row['secondary_resolution'], str),
-        "secondary_action": optional(row['secondary_action'], str),
-        "secondary_ts": optional(row['secondary_ts'], lambda t: datetime.strptime(t, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)),        
+        "threat_level": row['threat_level'] if row['threat_level'] != "" else UNSET_VALUE,
+        "secondary_priority": float(row['secondary_priority']) if row['secondary_priority'] != "" else UNSET_VALUE,
+        "secondary_resolution": row['secondary_resolution'] if row['secondary_resolution'] != "" else UNSET_VALUE,
+        "secondary_action": row['secondary_action'] if row['secondary_action'] != "" else UNSET_VALUE,
+        "secondary_ts": datetime.strptime(row['secondary_ts'], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc) if row['secondary_ts'] != "" else UNSET_VALUE,        
         "ticket_number": row['ticket_number'],
         "booth_id": row['booth_id'],
         "officer_badge": row['officer_badge'],
@@ -43,9 +38,9 @@ def parse_row(row):
         "reason": row['reason']
     }
 
-# Prepare the insert and updates for each table for the queries
-def prepare_statements(session):
-    return {
+def seed(session):
+    # Prepare the INSERT and UPDATE statements for the tables.
+    statements = {
         "by_passport": session.prepare(
             "INSERT INTO crossings_by_passport (passport_number, crossing_ts, crossing_id, full_name, nationality, booth_id, flight_code, status, reason) "
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -68,21 +63,17 @@ def prepare_statements(session):
         )
     }
 
-def seed(session):
-    # Prepare the tables.
-    statements = prepare_statements(session)
-
-    # Reset the counter table to avoid counting rows twice.
+    # Reset the counter table to avoid counting rows twice in crossing_stats_by_day table.
     session.execute("TRUNCATE crossing_stats_by_day")
     counts = {"by_passport": 0, "by_booth_day": 0, "alerts": 0, "secondary": 0, "stats": 0}
 
-    # Read de csv and parse each row.
+    # Read the CSV and assign the datatype for each row.
     with open(CSV_PATH, mode="r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
 
-        # Insert each row into every table for the queries.
+        # Insert each row into the corresponding tables.
         for row in reader:
-            r = parse_row(row)
+            r = assign_datatype_row(row)
             session.execute(statements["by_passport"],(
                 r['passport_number'], r['crossing_ts'], r['crossing_id'],
                 r['full_name'], r['nationality'], r['booth_id'],
@@ -134,9 +125,9 @@ if __name__ == "__main__":
         counts = seed(session)
         elapsed = time.perf_counter() - start
         for table, n in counts.items():
-            # Print the writes for the table of each querie
+            # Print the writes for each table
             print(f"  {table}: {n} writes")
         print(f"Time: {elapsed:.2f} s")
     finally:
-        # Finaly we end the session
+        # Finally we end the session
         cluster.shutdown()
