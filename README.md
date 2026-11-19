@@ -390,14 +390,6 @@ Simulate an unexpected crash of the primary master node to observe Sentinel's au
    - `-sdown slave redis-local:6379 ...` (Node marks available)
    - `+slave slave 172.22.0.2:6379 ...` (Reconfigured as replica under the new master)
 
-   Verify role degradation directly:
-
-   ```bash
-   docker exec -it bordergate-redis-local redis-cli INFO replication
-   ```
-
-   *Confirmed Parameters:* `role:slave`, `master_link_status:up`, `slave_read_only:1`.
-
 ---
 
 ### 4. Fully Manual Failover
