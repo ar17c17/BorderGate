@@ -257,7 +257,7 @@ To spawn workers for all 12 booths at the same time in background processes:
 for i in $(seq -f "%03g" 1 12); do BOOTH_ID="BOX-$i" uv run python -m src.redis.consumer & done
 ```
 **Concurrency output & interference note:**
-```text
+
 Executing the 12 processes simultaneously in background causes 
 broken visual formatting in the terminal.
 
@@ -265,7 +265,7 @@ Because all 12 independent Python processes write concurrently to the same
 standard output stream (stdout) without I/O locking, prints, security 
 alerts, and completion summaries coincide in time and unpredictably appear
 on screen without a logical order.
-```
+
 
 ---
 
