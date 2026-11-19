@@ -487,17 +487,18 @@ docker exec -it bordergate-cassandra cqlsh -e "SELECT keyspace_name, durable_wri
 
 `data/seed_data/cassandra_border_crossings.csv` contains 5,147 synthetic crossings (12 Oct – 10 Nov 2026) built from similar data used by Redis (booths, officers, stolen/wanted passports, visa policies). Each crossing is written to every table that needs it:
 
+```text
+
             cassandra_border_crossings.csv  (1 row = 1 crossing)
                                 │
-                                ▼
                    src/cassandra/seed_cassandra.py (prepared statements)
                                 │
       ┌─────────────────┬───────┴──────────┬──────────────────┬───────────────────────┐
       │ always          │ always           │ always (+1)      │ if DENIED_*           │ if SECONDARY_INSPECTION
-      ▼                 ▼                  ▼                  ▼                       ▼
 crossings_by_      crossings_by_      crossing_stats_     alerts_by_day      secondary_reviews_by_day
   passport           booth_day           by_day               (Q4)                   (Q5)
    (Q1)              (Q2, Q3)          (Q6, counter)
+```
 
 ```bash
 uv run python -m src.cassandra.seed_cassandra
@@ -563,7 +564,7 @@ Every query reads a **single partition**, located directly from the hash of its 
 | Table | Queries | Partition Key | Clustering Key | Notes |
 |---|---|---|---|---|
 | `crossings_by_passport` | Q1 | `passport_number` | `crossing_ts DESC`, `crossing_id ASC` | `full_name`, `nationality` are `STATIC` |
-| `crossings_by_booth_day` | Q2, Q3 | (`booth_id`, `crossing_date`) | `crossing_ts ASC`, `crossing_id ASC` | Daily bucketing bounds partition size |
+| `crossings_by_booth_day` | Q2, Q3 | (`booth_id`, `crossing_date`) | `crossing_ts ASC`, `crossing_id ASC` |  |
 | `alerts_by_day` | Q4 | `crossing_date` | `crossing_ts DESC`, `crossing_id ASC` | Only `DENIED_*` crossings |
 | `secondary_reviews_by_day` | Q5 | `crossing_date` | `secondary_priority DESC`, `crossing_ts ASC`, `crossing_id ASC` | Top-N with `LIMIT` |
 | `crossing_stats_by_day` | Q6 | `crossing_date` | `status ASC`, `nationality ASC` | `crossing_count` counter |
@@ -600,80 +601,5 @@ docker stop bordergate-cassandra
 docker start bordergate-cassandra   # wait for "Starting listening for CQL clients"
 ```
 
-Data persists in the `bordergate-cassandra-data` volume.
-
+Data persists in the `bordergate-cassandra-data` volume, as intended.
 ---
-
-## Cassandra Tests
-
-### 1. Partition Strategy Evidence
-
-```bash
-docker exec -it bordergate-cassandra nodetool flush
-docker exec -it bordergate-cassandra nodetool tablestats border_crossing
-```
-
-*Check:* `Number of partitions (estimate)` per table. `crossings_by_booth_day` holds one small partition per booth and day (daily bucketing), while `alerts_by_day` and `secondary_reviews_by_day` hold one partition per day.
-
-Locate the node that owns a partition (partition key → Murmur3 token → node):
-
-```bash
-docker exec -it bordergate-cassandra nodetool getendpoints border_crossing crossings_by_passport ESP-572524
-docker exec -it bordergate-cassandra nodetool getendpoints border_crossing crossings_by_booth_day BOX-007:2026-10-21
-```
-
----
-
-### 2. Quorum Requirement (RF > available replicas)
-
-Open the interactive CQL shell:
-
-```bash
-docker exec -it bordergate-cassandra cqlsh
-```
-
-```sql
-CREATE KEYSPACE quorum_test WITH replication = {'class': 'NetworkTopologyStrategy', 'Mad_Barajas': 3};
-CREATE TABLE quorum_test.t (id int PRIMARY KEY, v text);
-
-CONSISTENCY LOCAL_QUORUM;
-INSERT INTO quorum_test.t (id, v) VALUES (1, 'test');   -- fails: 2 replicas required, 1 alive
-
-CONSISTENCY ONE;
-INSERT INTO quorum_test.t (id, v) VALUES (1, 'test');   -- succeeds
-
-DROP KEYSPACE quorum_test;
-```
-
-*Expected Result:* with RF = 3 on a single node, `LOCAL_QUORUM` (2 replicas) cannot be achieved; `ONE` succeeds. This is why `border_crossing` uses `Mad_Barajas: 1`.
-
----
-
-### 3. Node Failure Handling
-
-```bash
-docker stop bordergate-cassandra
-uv run python -m src.cassandra.query_cassandra
-```
-
-*Expected Output:*
-
-```text
-ConnectionError: Could not connect to Cassandra at localhost:9042
-```
-
-```bash
-docker start bordergate-cassandra
-```
-
-Once the node accepts CQL connections again, all data is still available (persistent volume).
-
----
-
-### 4. Query-Driven Model: Non-Key Filtering Is Rejected
-
-```bash
-docker exec -it bordergate-cassandra cqlsh -e "SELECT crossing_ts, full_name, status FROM border_crossing.alerts_by_day WHERE nationality = 'NGA';"
-```
-
-*Expected Result:* `InvalidRequest ... use ALLOW FILTERING`. Filtering by a non-key column would scan every partition; the correct solution in Cassandra is a new table designed for that query, not `ALLOW FILTERING`.

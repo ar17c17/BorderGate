@@ -1,6 +1,6 @@
 [project]
 name = "bordergate"
-version = "0.1.0"
+version = "0.5.0"
 requires-python = ">=3.12"
 dependencies = [
     "cassandra-driver>=3.30.1",
