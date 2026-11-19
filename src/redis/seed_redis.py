@@ -4,17 +4,16 @@ import json
 from pathlib import Path
 from config.redis_clients import get_cloud_redis, get_local_redis, safe_execute, safe_delete
 
-SEED_DIR = Path(__file__).resolve().parent.parent / 'data' / 'seed_data'
+SEED_DIR = Path(__file__).resolve().parent.parent.parent / 'data' / 'seed_data'
 
 
 def seed_cloud(r_cloud):
     print('Seeding redis cloud')
-
     # Stolen passports
     stolen_file = SEED_DIR / 'cloud_stolen_passports.csv'
-
     if stolen_file.exists():
         with open(stolen_file, encoding='utf-8') as f:
+            # Check user permissions to perform the action
             safe_delete(r_cloud, 'blacklist:stolen_passports')
             count = 0
             pipe = r_cloud.pipeline()
@@ -23,8 +22,9 @@ def seed_cloud(r_cloud):
                 pipe.sadd('blacklist:stolen_passports', passport)
                 pipe.hset(f'stolen:{passport}', mapping=row)
                 count += 1
-            estado = safe_execute(pipe, 'Cloud: stolen passports')
-            if estado:
+            # Check user permissions to perform the action
+            status = safe_execute(pipe, 'Cloud: stolen passports')
+            if status:
                 print(f'{count} stolen passports')
 
     # Wanted people
@@ -32,6 +32,7 @@ def seed_cloud(r_cloud):
 
     if wanted_file.exists():
         with open(wanted_file, encoding='utf-8') as f:
+            # Check user permissions to perform the action
             safe_delete(r_cloud, 'blacklist:wanted_persons')
             count = 0
             pipe = r_cloud.pipeline()
@@ -42,8 +43,8 @@ def seed_cloud(r_cloud):
                 pipe.hset(f'wanted:{passport}', mapping=row)
                 pipe.zadd('blacklist:wanted_persons', {passport: threat_scores.get(level, 1)})
                 count += 1
-            estado = safe_execute(pipe, 'Cloud: wanted persons')
-            if estado:
+            status = safe_execute(pipe, 'Cloud: wanted persons')
+            if status:
                 print(f'{count} wanted persons')
 
     # Visa policies
@@ -58,15 +59,16 @@ def seed_cloud(r_cloud):
                 pipe.delete(key)
                 pipe.hset(key, mapping=row)
                 count += 1
-            estado = safe_execute(pipe, 'Cloud: visa policies')
-            if estado:
+            # Check user permissions to perform the action
+            status = safe_execute(pipe, 'Cloud: visa policies')
+            if status:
                 print(f'{count} visa policies')
 
-    # Aggent sessions with TTL in each cabin
-    a_sessions_file = SEED_DIR / 'cloud_agent_sessions.csv'
+    # Aggents
+    agent_sessions = SEED_DIR / 'cloud_agent_sessions.csv'
 
-    if a_sessions_file.exists():
-        with open(a_sessions_file, encoding='utf-8') as f:
+    if agent_sessions.exists():
+        with open(agent_sessions, encoding='utf-8') as f:
             count = 0
             pipe = r_cloud.pipeline()
             for row in csv.DictReader(f):
@@ -82,8 +84,9 @@ def seed_cloud(r_cloud):
                     pipe.delete(f'cabin:active:{booth}')
                     pipe.set(f'cabin:active:{booth}', badge, ex=ttl)
                 count += 1
-            estado = safe_execute(pipe, 'Cloud: agent sessions')
-            if estado:
+            # Check user permissions to perform the action
+            status = safe_execute(pipe, 'Cloud: agent sessions')
+            if status:
                 print(f'{count} agent sessions')
 
 
@@ -92,7 +95,7 @@ def seed_redis(r_local):
 
     queue_file = SEED_DIR / 'docker_passenger_queue.csv'
     if not queue_file.exists():
-        print('No passenger csv found')
+        print('No passenger CSV found')
         return
 
     with open(queue_file, encoding='utf-8') as f:
@@ -120,6 +123,7 @@ def seed_redis(r_local):
 
 
 if __name__ == '__main__':
+    # Set arguments logic to select type of seeding
     parser = argparse.ArgumentParser(description='Seed redis cloud and/or local')
     parser.add_argument('--cloud', action='store_true')
     parser.add_argument('--local', action='store_true')

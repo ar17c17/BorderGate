@@ -180,10 +180,9 @@ docker exec bordergate-cassandra nodetool status
 ```
 *Expected output:* `Datacenter: Mad_Barajas` with node status `UN` (`Up` / `Normal`) and `16` tokens.
 
-Verify CQL connectivity:
-
+Load the schema
 ```bash
-docker exec bordergate-cassandra cqlsh -e "DESCRIBE KEYSPACES;"
+docker exec -i bordergate-cassandra cqlsh < cql/schema.cql
 ```
 ---
 
@@ -202,13 +201,13 @@ uv run python -m src.test_connect
 Upload  control data (stolen passports, wanted individuals, visa policies, active officer sessions) to Redis Cloud and load initial passenger queues in the local Redis master. The two replicas receive the local data automatically through replication.
 
 ```bash
-uv run python -m src.seed_redis
+uv run python -m src.redis.seed_redis
 ```
 
 We can also select wich database we want to seed:
 ```bash
-uv run python -m src.seed_redis --local
-uv run python -m src.seed_redis --cloud
+uv run python -m src.redis.seed_redis --local
+uv run python -m src.redis.seed_redis --cloud
 
 ```
 Allows rapid local queue resets during testing without re-uploading global cloud datasets. 
@@ -231,7 +230,7 @@ instance using the `--local` flag:
 Start the security breach subscriber to catch high-priority arrest alerts broadcasted from any booth via Pub/Sub:
 
 ```bash
-uv run python -m src.security_alerts
+uv run python -m src.redis.security_alerts
 ```
 
 ---
@@ -243,16 +242,16 @@ BOOTH_ID as a CLI argument or environment variable:
 1. Running a single booth worker
 ```bash
 # Via argument (BOX-001 to BOX-012)
-uv run python -m src.consumer BOX-001
+uv run python -m src.redis.consumer BOX-001
 
 # Or via environment variable (e.g., BOX-002)
-BOOTH_ID=BOX-002 uv run python -m src.consumer
+BOOTH_ID=BOX-002 uv run python -m src.redis.consumer
 ```
 2. Spawn all 12 booths at the same time
 
 To spawn workers for all 12 booths at the same time in background processes:
 ```bash
-for i in $(seq -f "%03g" 1 12); do BOOTH_ID="BOX-$i" uv run python -m src.consumer & done
+for i in $(seq -f "%03g" 1 12); do BOOTH_ID="BOX-$i" uv run python -m src.redis.consumer & done
 ```
 **Concurrency output & interference note**:
 
@@ -270,7 +269,7 @@ on screen without a logical order.
 Start the second-line inspection workspace. Launching this monitor after or during booth processing allows it to consume flagged passengers from the priority-sorted queue (`ZSET`), processing candidates by highest cumulative risk score rather than order of arrival:
 
 ```bash
-uv run python -m src.secondary_review
+uv run python -m src.redis.secondary_review
 ```
 
 ---
@@ -479,7 +478,7 @@ docker exec -i bordergate-cassandra cqlsh < cql/schema.cql
 Verify:
 
 ```bash
-docker exec -it bordergate-cassandra cqlsh -e "DESCRIBE TABLES;"
+docker exec -it bordergate-cassandra cqlsh -k border_crossing -e "DESCRIBE TABLES;"
 docker exec -it bordergate-cassandra cqlsh -e "SELECT keyspace_name, durable_writes, replication FROM system_schema.keyspaces WHERE keyspace_name = 'border_crossing';"
 ```
 
@@ -504,7 +503,7 @@ crossings_by_      crossings_by_      crossing_stats_     alerts_by_day      sec
    (Q1)              (Q2, Q3)          (Q6, counter)
 
 ```bash
-uv run python -m src.seed_cassandra
+uv run python -m src.cassandra.seed_cassandra
 ```
 
 *Expected Output:*
@@ -515,7 +514,7 @@ uv run python -m src.seed_cassandra
   alerts: 287 writes
   secondary: 338 writes
   stats: 5147 writes
-Done in 8.43 s
+Done in 'x' s
 ```
 
 Load design:
@@ -543,7 +542,7 @@ docker exec -i bordergate-cassandra cqlsh < cql/queries.cql
 Python version with execution times (each query runs 5 times; average and minimum in ms):
 
 ```bash
-uv run python -m src.query_cassandra
+uv run python -m src.cassandra.query_cassandra
 ```
 
 *Expected Output (times vary per machine):*
@@ -651,7 +650,7 @@ DROP KEYSPACE quorum_test;
 
 ```bash
 docker stop bordergate-cassandra
-uv run python -m src.query_cassandra
+uv run python -m src.cassandra.query_cassandra
 ```
 
 *Expected Output:*

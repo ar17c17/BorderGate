@@ -1,7 +1,6 @@
 import json
 from config.redis_clients import get_cloud_redis, get_local_redis
 
-
 def main():
     r_cloud = get_cloud_redis()
     pubsub = r_cloud.pubsub()
@@ -10,8 +9,8 @@ def main():
     try: 
         for message in pubsub.listen():
             if message["type"] == "message":
-                data_str = message["data"]
-                alert_data = json.loads(data_str)
+                data = message["data"]
+                alert_data = json.loads(data)
                 print("\n" + "=" * 40)
                 print(f"   SECURITY BREACH DETECTED — IMMEDIATE ARREST ORDER")
                 print("=" * 40)

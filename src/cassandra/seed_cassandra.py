@@ -6,7 +6,7 @@ from pathlib import Path
 from cassandra.query import UNSET_VALUE
 from config.cassandra_client import get_cassandra_session
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 SEED_DIR = BASE_DIR / 'data' / 'seed_data'
 CSV_PATH = SEED_DIR / 'cassandra_border_crossings.csv'
 
