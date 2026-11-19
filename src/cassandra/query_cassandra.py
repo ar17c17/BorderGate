@@ -115,7 +115,7 @@ if __name__ == "__main__":
 
     # Arguments for execution, queries and verbose options.
     args = sys.argv[1:]
-    verbose = not args or "-v" in args or "--verbose" in args
+    verbose = "-v" in args or "--verbose" in args
     selected = [arg.upper() for arg in args if not arg.startswith("-")]
     queries = [q for q in QUERIES if q['id'] in selected] if selected else QUERIES
 
