@@ -1,3 +1,7 @@
+# -----------------------------------------------------------------------------
+# Module: query_cassandra.py
+# Purpose: Executes defined queries Q1-Q6 against border_crossing in Cassandra and benchmarks latency.
+# -----------------------------------------------------------------------------
 import time
 import sys
 from datetime import date, datetime, timezone

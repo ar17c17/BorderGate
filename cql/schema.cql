@@ -1,3 +1,8 @@
+-- -----------------------------------------------------------------------------
+-- File: schema.cql
+-- Purpose: Creates the border_crossing keyspace and query-driven denormalized tables for Q1-Q6
+-- -----------------------------------------------------------------------------
+
 -- Create keyspace.
 CREATE KEYSPACE IF NOT EXISTS "border_crossing" 
 WITH REPLICATION = {

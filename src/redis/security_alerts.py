@@ -1,5 +1,9 @@
+# -----------------------------------------------------------------------------
+# Module: security_alerts.py
+# Purpose: Acts as a real-time monitor pub/sub for security alerts arriving concurrently from different booths.
+# -----------------------------------------------------------------------------
 import json
-from config.redis_clients import get_cloud_redis, get_local_redis
+from config.redis_clients import get_cloud_redis
 
 def main():
     r_cloud = get_cloud_redis()

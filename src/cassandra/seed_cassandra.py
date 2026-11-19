@@ -1,3 +1,7 @@
+# -----------------------------------------------------------------------------
+# Module: seed_cassandra.py
+# Purpose: Loads synthetic border crossing records from CSV into Cassandra tables
+# -----------------------------------------------------------------------------
 import csv
 import time
 import uuid

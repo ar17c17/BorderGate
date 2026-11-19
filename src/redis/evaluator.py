@@ -1,3 +1,7 @@
+# -----------------------------------------------------------------------------
+# Module: evaluator.py
+# Purpose: Implements the evaluation logic to return a decision. Called by 'consumer.py'.
+# -----------------------------------------------------------------------------
 import json
 def evaluate_passenger(passenger,r_cloud):
     """

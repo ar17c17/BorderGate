@@ -1,5 +1,8 @@
+# -----------------------------------------------------------------------------
+# Module: cassandra_clients.py
+# Purpose: Gets from the .env the needed information to start Cassandra client.
+# -----------------------------------------------------------------------------
 import os
-
 from pathlib import Path
 from dotenv import load_dotenv
 from cassandra.cluster import Cluster, ExecutionProfile, EXEC_PROFILE_DEFAULT, NoHostAvailable

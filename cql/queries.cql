@@ -1,3 +1,9 @@
+-- -----------------------------------------------------------------------------
+-- File: queries.cql
+-- Purpose: Establish all 6 queries in cql.
+-- ----------------------------------------------------------------------------
+
+
 -- Queries
 -- Q1: Crossing history of a passport (most recent first).
 -- Example value: ESP-572524

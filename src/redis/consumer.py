@@ -1,13 +1,22 @@
+# -----------------------------------------------------------------------------
+# Module: producer.py
+# Purpose: Extract from queue:passengers in order to process them and return an evaluation
+# Inputs: It takes the BOOTH_ID as an argument.
+# -----------------------------------------------------------------------------
+
 import os
 import json
 import sys
 import time
 from datetime import datetime, timezone
-from config.redis_clients import get_cloud_redis, get_local_redis, safe_publish
+from config.redis_clients import get_cloud_redis, get_local_redis
+from  safe_executes import safe_publish
 from src.redis.evaluator import evaluate_passenger
 
 # Set booth ID for the process (BOX-001)
 BOOTH_ID = os.getenv("BOOTH_ID", sys.argv[1] if len(sys.argv) > 1 else "BOX-001")
+
+
 
 def start_consumer():
     # Initialize connection clients for Local Docker Redis and Redis Cloud

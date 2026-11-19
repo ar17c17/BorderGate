@@ -1,3 +1,8 @@
+# -----------------------------------------------------------------------------
+# Module: seed_redis.py
+# Purpose: Loads data from seed CSVs and uploads it to the corresponding Redis instance (Cloud or Docker)
+# Inputs: --cloud (Cloud only), --local (Docker only), or neither to seed both by default
+# -----------------------------------------------------------------------------
 import argparse
 import csv
 import json

@@ -1,3 +1,9 @@
+-- -----------------------------------------------------------------------------
+-- File: inserts.cql
+-- Purpose: Manual CQL examples to seed tables (Q1-Q6) and verify writes
+-- -----------------------------------------------------------------------------
+
+
 -- Insertion examples
 -- Q1: crossings_by_passport
 INSERT INTO border_crossing.crossings_by_passport

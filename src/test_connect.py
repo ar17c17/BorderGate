@@ -1,3 +1,7 @@
+# -----------------------------------------------------------------------------
+# Module: test_connect.py
+# Purpose: Executes thre connectivy tests.
+# -----------------------------------------------------------------------------
 from config.cassandra_client import get_cassandra_session
 from config.redis_clients import get_cloud_redis, get_local_redis
 

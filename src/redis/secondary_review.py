@@ -1,3 +1,9 @@
+# -----------------------------------------------------------------------------
+# Module: secondary_review.py
+# Purpose: Pops from queue:secondary_review:ranking based on PRIORITY and handles manual review of a passenger
+# Modes of operation: Can be run concurrently with consumer.py as a real-time queue,
+# or at the end preserving priority order.
+# -----------------------------------------------------------------------------
 import json
 from config.redis_clients import get_cloud_redis, get_local_redis
 import time
